@@ -1,8 +1,9 @@
 # It's only necessary to list the source files here
 set(SOURCE_FILES
+    base/camera.cu
     base/image.cu
-    base/ray.cpp
-    integrator/integrator.cpp
+    base/ray.cu
+    integrator/integrator.cu
 )
 
 # Static library configurations

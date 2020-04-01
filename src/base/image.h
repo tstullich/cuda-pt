@@ -2,6 +2,7 @@
 
 #include <cuda.h>
 
+#include <iostream>
 #include <memory>
 #include <string>
 
@@ -10,15 +11,23 @@ class RGBImage {
  public:
   RGBImage(size_t width, size_t height);
 
-  void set_colors();
+  inline size_t getChannels() const { return CHANNELS; }
 
-  void write_png(const std::string& file_name);
+  inline size_t getHeight() const { return height; }
+
+  inline size_t getSize() const { return bufferSize; }
+
+  inline size_t getWidth() const { return width; }
+
+  inline uint8_t* getBuffer() const { return image.get(); }
+
+  void writePNG(const std::string& fileName);
 
  private:
   const size_t CHANNELS = 3;
   size_t width;
   size_t height;
-  size_t buffer_size;
-  std::shared_ptr<uint8_t> image;
+  size_t bufferSize;
+  std::unique_ptr<uint8_t> image;
 };
 }  // namespace gm

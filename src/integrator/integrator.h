@@ -1,5 +1,8 @@
 #pragma once
 
+#include <cuda.h>
+
+#include <iostream>
 #include <memory>
 
 #include "image.h"
@@ -12,9 +15,10 @@ class Integrator {
  public:
   Integrator();
 
-  void trace();
+  void integrate();
 
  private:
+  const static int BLOCK_SIZE = 8;
   std::unique_ptr<RGBImage> image;
 };
 }  // namespace gm

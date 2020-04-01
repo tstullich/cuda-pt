@@ -1,11 +1,14 @@
 #pragma once
 
+#include <cuda.h>
+
 #include "ray.h"
 
 namespace gm {
-class Camera {
-  Camera();
+class PerspectiveCamera {
+ public:
+  PerspectiveCamera();
 
-  Ray generate_ray();
+  __device__ Ray generate_ray();
 };
 }  // namespace gm
