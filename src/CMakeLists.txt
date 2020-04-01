@@ -22,4 +22,4 @@ target_include_directories(gamma_lib PUBLIC ${GLM_INCLUDE_DIR}/glm)
 add_executable(gamma main.cpp)
 target_link_libraries(gamma gamma_lib)
 
-install(TARGETS gamma_lib gamma DESTINATION ${GAMMA_INSTALL_BIN_DIR})
+install(TARGETS gamma DESTINATION ${GAMMA_INSTALL_BIN_DIR})
