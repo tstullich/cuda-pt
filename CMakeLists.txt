@@ -9,9 +9,11 @@ set(GAMMA_INSTALL_BIN_DIR ${PROJECT_SOURCE_DIR}/bin)
 
 # Set paths for external dependencies
 set(STB_INCLUDE_DIR ${PROJECT_SOURCE_DIR}/extern/stb)
+set(GLM_INCLUDE_DIR ${PROJECT_SOURCE_DIR}/extern/glm)
 
 # Include external dependencies
 include_directories(${STB_INCLUDE_DIR})
+include_directories(${GLM_INCLUDE_DIR})
 include_directories(${CMAKE_CUDA_TOOLKIT_INCLUDE_DIRECTORIES})
 
 add_subdirectory(src)
