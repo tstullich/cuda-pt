@@ -13,10 +13,10 @@ then clone the repository using this command:
 
 `git clone --recursive git@github.com:tstullich/gamma.git`
 
-Once inside the top-level of the repository create a build directory: 
+Once inside the top-level of the repository create a build directory:
 ```
 mkdir build
-cd build  
+cd build
 cmake .. && make install
 ```
 
