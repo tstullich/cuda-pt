@@ -1,31 +1,25 @@
-set(HEADER_FILES
-    base/camera.h
-    base/image.h
-    base/ray.h
-    integrator/integrator.h
-)
-
+# It's only necessary to list the source files here
 set(SOURCE_FILES
     base/image.cu
-    main.cpp
+    base/ray.cpp
+    integrator/integrator.cpp
 )
 
 # Static library configurations
-add_library(gamma_lib STATIC ${HEADER_FILES} ${SOURCE_FILES})
+add_library(gamma_lib STATIC ${SOURCE_FILES})
 
+# Target properties can be added here
 set_target_properties(gamma_lib PROPERTIES CXX_STANDARD 14)
 set_target_properties(gamma_lib PROPERTIES CXX_STANDARD_REQUIRED ON)
 set_target_properties(gamma_lib PROPERTIES CUDA_SEPARABLE_COMPILATION ON)
 
-# Include directories will be added here
-target_include_directories(gamma_lib PRIVATE ${CMAKE_CURRENT_SRC_DIR}/base)
-target_include_directories(gamma_lib PRIVATE ${GLM_INCLUDE_DIR}/glm)
+# Include directories. Add one for each new folder in this directory
+target_include_directories(gamma_lib PUBLIC ${CMAKE_CURRENT_LIST_DIR}/base)
+target_include_directories(gamma_lib PUBLIC ${CMAKE_CURRENT_LIST_DIR}/integrator)
+target_include_directories(gamma_lib PUBLIC ${GLM_INCLUDE_DIR}/glm)
 
 # Executable configurations
-add_executable(gamma ${SOURCE_FILES})
+add_executable(gamma main.cpp)
+target_link_libraries(gamma gamma_lib)
 
-set_target_properties(gamma PROPERTIES CXX_STANDARD 14)
-set_target_properties(gamma PROPERTIES CXX_STANDARD_REQUIRED ON)
-set_target_properties(gamma PROPERTIES CUDA_SEPARABLE_COMPILATION ON)
-
-install(TARGETS gamma DESTINATION ${GAMMA_INSTALL_BIN_DIR})
+install(TARGETS gamma_lib gamma DESTINATION ${GAMMA_INSTALL_BIN_DIR})
