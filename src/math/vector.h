@@ -60,7 +60,7 @@ class Vector2 {
   }
 
   __device__ bool operator!=(const Vector2<T> &v) const {
-    return x != v.x && y != v.y;
+    return x != v.x || y != v.y;
   }
 
   template <typename U>
@@ -174,7 +174,7 @@ class Vector3 {
   }
 
   __device__ bool operator!=(const Vector3<T> &v) const {
-    return x != v.x && y != v.y && z != v.z;
+    return x != v.x || y != v.y || z != v.z;
   }
 
   template <typename U>
