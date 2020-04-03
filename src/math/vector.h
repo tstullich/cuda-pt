@@ -1,7 +1,6 @@
 #pragma once
 
-/// Including math.h for CUDA
-#include "math.h"
+#include "math.h"  // For built-in CUDA functions
 
 /// There are two common vector classes contained within this file.
 /// Vector2 and Vector3 have been templated to allow for flexible
@@ -236,11 +235,11 @@ class Vector3 {
     return z;
   }
 
+  __device__ bool hasNans() const { return isnan(x) || isnan(y) || isnan(z); }
+
   __device__ float lengthSquared() const { return x * x + y * y + z * z; }
 
   __device__ float length() const { return sqrtf(lengthSquared()); }
-
-  __device__ bool hasNans() const { return isnan(x) || isnan(y) || isnan(z); }
 
   // X, Y, and Z components are freely accessible
   T x;
@@ -248,10 +247,52 @@ class Vector3 {
   T z;
 };
 
+/// These are vector transformation functions, that are useful for various
+/// purposes. One assumption is made that the vectors passed into these
+/// functions operate using floating point data types, so that it is
+/// possible to use the built-in CUDA functions contained in <math.h>
+template <typename T>
+__device__ float dot(const Vector3<T> &v1, const Vector3<T> &v2) {
+  return v1.x * v2.x + v1.y * v2.y + v1.z * v2.z;
+}
+
+template <typename T>
+__device__ Vector3<T> cross(const Vector3<T> &v1, const Vector3<T> &v2) {
+  // Convert vector entries to double to prevent catastrophic cancellation
+  double v1x = v1.x, v1y = v1.y, v1z = v1.z;
+  double v2x = v2.x, v2y = v2.y, v2z = v2.z;
+  return Vector3<T>((v1y * v2z) - (v1z * v2y), (v1z * v2x) - (v1x * v2z),
+                    (v1x * v2y) - (v1y * v2x));
+}
+
+template <typename T>
+__device__ Vector3<T> max(const Vector3<T> &v1, const Vector3<T> &v2) {
+  return Vector3<T>(fmaxf(v1.x, v2.x), fmaxf(v1.y, v2.y), fmaxf(v1.z, v2.z));
+}
+
+template <typename T>
+__device__ Vector3<T> min(const Vector3<T> &v1, const Vector3<T> &v2) {
+  return Vector3<T>(fminf(v1.x, v2.x), fminf(v1.y, v2.y), fminf(v1.z, v2.z));
+}
+
+template <typename T>
+__device__ T maxComponent(const Vector3<T> &v) {
+  return fmaxf(v.x, fmaxf(v.y, v.z));
+}
+
+template <typename T>
+__device__ T minComponent(const Vector3<T> &v) {
+  return fminf(v.x, fminf(v.y, v.z));
+}
+
+template <typename T>
+__device__ Vector3<T> normalize(const Vector3<T> &v) {
+  return v / v.length();
+}
+
 // Convenience typedefs. These should be used whenever possible
 typedef Vector2<float> Vec2f;
 typedef Vector2<int> Vec2i;
 typedef Vector3<float> Vec3f;
 typedef Vector3<int> Vec3i;
-
 }  // namespace gm
