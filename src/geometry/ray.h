@@ -2,6 +2,6 @@
 
 namespace gm {
 struct Ray {
-  Ray();
+  __device__ Ray();
 };
 }  // namespace gm
