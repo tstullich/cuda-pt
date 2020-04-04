@@ -2,7 +2,6 @@
 set(SOURCE_FILES
     base/camera.cu
     base/image.cu
-    geometry/ray.cu
     integrator/integrator.cu
 )
 

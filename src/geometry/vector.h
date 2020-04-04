@@ -249,7 +249,7 @@ class Vector3 {
 
 /// These are vector transformation functions, that are useful for various
 /// purposes. One assumption is made that the vectors passed into these
-/// functions operate using floating point data types, so that it is
+/// functions operate using 32-bit floating point values, so that it is
 /// possible to use the built-in CUDA functions contained in <math.h>
 template <typename T>
 __device__ float dot(const Vector3<T> &v1, const Vector3<T> &v2) {
@@ -291,8 +291,8 @@ __device__ Vector3<T> normalize(const Vector3<T> &v) {
 }
 
 // Convenience typedefs. These should be used whenever possible
-typedef Vector2<float> Vec2f;
-typedef Vector2<int> Vec2i;
-typedef Vector3<float> Vec3f;
-typedef Vector3<int> Vec3i;
+typedef Vector2<float> Vector2f;
+typedef Vector2<int> Vector2i;
+typedef Vector3<float> Vector3f;
+typedef Vector3<int> Vector3i;
 }  // namespace gm

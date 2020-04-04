@@ -35,6 +35,7 @@ void gm::Integrator::integrate() {
   pathtrace<<<gridDimensions, blockDimensions>>>(
       gpuImage.get(), image->getWidth(), image->getChannels());
 
+  // Sync all of the threads before continuing
   cudaDeviceSynchronize();
 
   // Copy result into CPU/host memory to write to a file
