@@ -2,28 +2,41 @@
 
 #include <cuda.h>
 
+#include <cmath>
+#include <iostream>
+
 #include "ray.h"
 #include "transform.h"
-#include "vector.h"
 
 namespace gm {
+/// Struct that stores innformation regarding a camera's
+/// aperture. The aperture information passed in should be
+/// in inches, not millimeters.
+struct FilmInfo {
+  FilmInfo(float width, float height) {
+    apertureWidth = width * INCH_TO_MM;
+    apertureHeight = height * INCH_TO_MM;
+  }
+
+  float apertureWidth;
+  float apertureHeight;
+
+  const float INCH_TO_MM = 25.4f;
+};
+
 class PerspectiveCamera {
  public:
-  __device__ PerspectiveCamera(const Vector3f &position, const Vector3f &target,
-                               const Vector3f &up, size_t width, size_t height,
-                               float fov, float lensRadius,
-                               float focalDistance);
+  PerspectiveCamera();
 
-  __device__ Ray generate_ray();
+  PerspectiveCamera(const FilmInfo &filmInfo, size_t imageWidth,
+                    size_t imageHeight, float focalLength);
+
+  Ray generate_ray();
 
  private:
-  float lensRadius;
-  float focalDistance;
-
-  Vector3f pMin;
-  Vector3f pMax;
-
-  Transform cameraToScreen, rasterToCamera;
-  Transform screenToRaster, rasterToScreen;
+  // Settings for the near and far clipping planes
+  float nearClip = 0.1f;   // Set slightly in front of the camera position
+  float farClip = 1000.f;  // TODO Figure out sensible setting for this
+  float focalLength;       // In millimeters
 };
 }  // namespace gm

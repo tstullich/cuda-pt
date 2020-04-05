@@ -5,6 +5,7 @@
 #include <iostream>
 #include <memory>
 
+#include "camera.h"
 #include "image.h"
 
 namespace gm {
@@ -19,6 +20,9 @@ class Integrator {
 
  private:
   const static int BLOCK_SIZE = 8;
+  const static int IMAGE_WIDTH = 400;
+  const static int IMAGE_HEIGHT = 300;
   std::unique_ptr<RGBImage> image;
+  PerspectiveCamera camera;
 };
 }  // namespace gm

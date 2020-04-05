@@ -1,20 +1,33 @@
 #include "camera.h"
 
-__device__ gm::PerspectiveCamera::PerspectiveCamera(const Vector3f &position,
-                                                    const Vector3f &target,
-                                                    const Vector3f &up,
-                                                    size_t width, size_t height,
-                                                    float fov, float lensRadius,
-                                                    float focalDistance)
-    : lensRadius(lensRadius), focalDistance(focalDistance) {
-
-  // Figure out where cameraToScreen comes from
-  cameraToScreen = perspective(fov, 1e-2f, 1000.0f);
-
-  // Create projective camera transformations
-  screenToRaster = scale(width, height, 1.0f);
-  rasterToScreen = screenToRaster.inverse();
-  rasterToCamera = cameraToScreen.inverse() * rasterToScreen;
+gm::PerspectiveCamera::PerspectiveCamera() {
+  // The camera should not be initialized with this constructor
 }
 
-__device__ gm::Ray gm::PerspectiveCamera::generate_ray() { return gm::Ray(); }
+gm::PerspectiveCamera::PerspectiveCamera(const FilmInfo &filmInfo,
+                                         size_t imageWidth, size_t imageHeight,
+                                         float focalLength)
+    : focalLength(focalLength) {
+  // Compute the aspect ratio of the final image. This needs to
+  // be preserved or else the conversion from screen space to raster space
+  // leads to stretching of the image.
+  float filmAspectRatio = filmInfo.apertureWidth / filmInfo.apertureHeight;
+  float deviceAspectRatio = static_cast<float>(imageWidth) / imageHeight;
+
+  float top = ((filmInfo.apertureHeight / 2.0f) / focalLength) * nearClip;
+  float right = ((filmInfo.apertureWidth / 2.0f) / focalLength) * nearClip;
+
+  float bottom = -top;
+  float left = -right;
+
+  std::cout << "Screen window coordinates: (" << bottom << ", " << left << ", "
+            << top << ", " << right << ")" << std::endl;
+  std::cout << "Film aspect ratio: " << filmAspectRatio << std::endl;
+  std::cout << "Device aspect ratio: " << deviceAspectRatio << std::endl;
+  std::cout << "Angle of view: "
+            << 2.0f * atan(((filmInfo.apertureWidth / 2.0f) / focalLength) *
+                           180.0f / M_PI)
+            << std::endl;
+}
+
+gm::Ray gm::PerspectiveCamera::generate_ray() { return gm::Ray(); }
