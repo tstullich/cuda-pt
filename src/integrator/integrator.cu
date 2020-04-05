@@ -2,7 +2,7 @@
 
 gm::Integrator::Integrator() {
   image = std::unique_ptr<RGBImage>(new RGBImage(IMAGE_WIDTH, IMAGE_HEIGHT));
-  FilmInfo info(0.825, 0.446); // Full 35mm aspect ratio
+  FilmInfo info(0.825, 0.446, ScanMode::Fill); // Full 35mm aspect ratio
   camera = PerspectiveCamera(info, IMAGE_WIDTH, IMAGE_HEIGHT, 35.0f);
 }
 
