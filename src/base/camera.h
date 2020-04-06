@@ -10,47 +10,26 @@
 
 namespace gm {
 
-enum ScanMode { Fill, Overscan };
-
-/// Struct that stores innformation regarding a camera's
-/// aperture. The aperture information passed in should be
-/// in inches, not millimeters.
-struct FilmInfo {
-  FilmInfo(float width, float height, ScanMode scanMode) {
-    apertureWidth = width * INCH_TO_MM;
-    apertureHeight = height * INCH_TO_MM;
-    mode = scanMode;
-  }
-
-  float apertureWidth;
-  float apertureHeight;
-  ScanMode mode;
-
-  // Conversion from inches to mm
-  const float INCH_TO_MM = 25.4f;
-};
-
 class PerspectiveCamera {
  public:
   PerspectiveCamera(){};
 
-  PerspectiveCamera(const FilmInfo &filmInfo, size_t imageWidth,
-                    size_t imageHeight, float focalLength);
+  PerspectiveCamera(const Vector3f &position, const Vector3f &lookAt,
+                    const Vector3f &up, size_t imageWidth, size_t imageHeight,
+                    float fov, float focalLength);
 
-  // Compute a new camera ray
-  Ray generate_ray(float x, float y);
+  // Compute a new camera ray for the given raster space coordinate
+  Ray generate_ray(uint32_t xPos, uint32_t yPos);
 
  private:
-  // Settings for the near and far clipping planes
-  float nearClip = 0.1f;  // Set slightly in front of the camera position
-  float imageAspectRatio;
+  void setCameraToWorld(const Vector3f &position, const Vector3f &lookAt,
+                        const Vector3f &up);
+
+  float aspectRatio;
   float scale;
 
   size_t imageWidth;
   size_t imageHeight;
-
-  Vector3f top;
-  Vector3f bottom;
 
   Matrix4x4f cameraToWorld;
 };

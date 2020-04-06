@@ -2,8 +2,9 @@
 
 gm::Integrator::Integrator() {
   image = std::unique_ptr<RGBImage>(new RGBImage(IMAGE_WIDTH, IMAGE_HEIGHT));
-  FilmInfo info(0.825, 0.446, ScanMode::Fill); // Full 35mm aspect ratio
-  camera = PerspectiveCamera(info, IMAGE_WIDTH, IMAGE_HEIGHT, 35.0f);
+  camera = PerspectiveCamera(
+      Vector3f(0.0f, 0.0f, 1.0f), Vector3f(0.0f, 0.0f, 0.0f),
+      Vector3f(0.0f, 1.0f, 0.0f), IMAGE_WIDTH, IMAGE_HEIGHT, 70.0f, 35.0f);
 }
 
 // The entry point for the path tracing kernel. This should be called from

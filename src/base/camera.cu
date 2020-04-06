@@ -1,63 +1,61 @@
 #include "camera.h"
 
-gm::PerspectiveCamera::PerspectiveCamera(const FilmInfo &filmInfo,
-                                         size_t imageWidth, size_t imageHeight,
-                                         float fov, float focalLength) {
-  // Compute the aspect ratio of the final image. This needs to
-  // be preserved or else the conversion from screen space to raster space
-  // leads to stretching of the image.
-  float filmAspectRatio = filmInfo.apertureWidth / filmInfo.apertureHeight;
-  imageAspectRatio = static_cast<float>(imageWidth) / imageHeight;
-
-  float t = ((filmInfo.apertureHeight / 2.0f) / focalLength) * nearClip;
-  float r = ((filmInfo.apertureWidth / 2.0f) / focalLength) * nearClip;
-
-  // Assign fill mode
-  float xscale = 1.0f;
-  float yscale = 1.0f;
-  if (filmInfo.mode == ScanMode::Fill) {
-    if (filmAspectRatio > imageAspectRatio) {
-      xscale = imageAspectRatio / filmAspectRatio;
-    } else {
-      yscale = filmAspectRatio / imageAspectRatio;
-    }
-  } else {
-    if (filmAspectRatio > imageAspectRatio) {
-      yscale = filmAspectRatio / imageAspectRatio;
-    } else {
-      xscale = imageAspectRatio / filmAspectRatio;
-    }
-  }
-
-  // Scale the top and right coordinate according to fill mode
-  t *= yscale;
-  r *= xscale;
-
+gm::PerspectiveCamera::PerspectiveCamera(const Vector3f &position,
+                                         const Vector3f &lookAt,
+                                         const Vector3f &up, size_t imageWidth,
+                                         size_t imageHeight, float fov,
+                                         float focalLength) {
+  aspectRatio = static_cast<float>(imageWidth) / imageHeight;
   scale = tan((fov * 0.5f) * M_PI / 180.0f);
 
-  top = Vector3f(r, t, nearClip);      // (r, t, n)
-  bottom = Vector3f(-r, -t, nearClip); // (l, b, n)
-
-  std::cout << "Top Vector: (" << top.x << ", " << top.y << ", " << top.z << ")"
-            << std::endl;
-  std::cout << "Bottom Vector: (" << bottom.x << ", " << bottom.y << ", "
-            << bottom.z << ")" << std::endl;
-  std::cout << "Film aspect ratio: " << filmAspectRatio << std::endl;
-  std::cout << "Device aspect ratio: " << imageAspectRatio << std::endl;
-  std::cout << "Angle of view: "
-            << 2.0f * atan(((filmInfo.apertureWidth / 2.0f) / focalLength) *
-                           180.0f / M_PI)
-            << std::endl;
+  // Create the camera to world matrix to transform rays
+  setCameraToWorld(position, lookAt, up);
 }
 
-gm::Ray gm::PerspectiveCamera::generate_ray(int xCoord, int yCoord) {
+gm::Ray gm::PerspectiveCamera::generate_ray(uint32_t xCoord, uint32_t yCoord) {
   Vector3f origin;
-  Vector3f direction;
+  // Transform origin point using the camera-to-world matrix
+  origin = cameraToWorld.multiplyPoint(origin);
 
+  // Create a projection point on the NDC plane
   float x = (2.0f * (xCoord + 0.5f) / static_cast<float>(imageWidth) - 1.0f) *
-            imageAspectRatio * scale;
+            aspectRatio * scale;
   float y =
       (1.0f - 2.0f * (yCoord + 0.5f) / static_cast<float>(imageHeight)) * scale;
 
-  return Ray(origin, normalize(direction));
+  // Position vector at the NDC plane looking in the negative z direction
+  Vector3f direction(x, y, -1.0f);
+  // Transform direction vector using the camera-to-world matrix and normalize
+  direction = normalize(cameraToWorld.multiplyVector(direction));
+
+  return Ray(origin, direction);
+}
+
+void gm::PerspectiveCamera::setCameraToWorld(const Vector3f &position,
+                                             const Vector3f &lookAt,
+                                             const Vector3f &up) {
+  // Create the three basis vectors for the camera orientation
+  Vector3f view = normalize(position - lookAt);
+  Vector3f right = normalize(cross(view, up));
+  Vector3f newUp = cross(view, right);
+
+  if (right.length() == 0.0f) {
+    // Error here because the up vector and viewing direction are the same!.
+    // Need to handle error here
+  }
+
+  // Set the components of the camera to world transformation matrix
+  cameraToWorld[0][0] = right.x;
+  cameraToWorld[0][1] = right.y;
+  cameraToWorld[0][2] = right.z;
+  cameraToWorld[1][0] = newUp.x;
+  cameraToWorld[1][1] = newUp.y;
+  cameraToWorld[1][2] = newUp.z;
+  cameraToWorld[2][0] = view.x;
+  cameraToWorld[2][1] = view.y;
+  cameraToWorld[2][2] = view.z;
+  cameraToWorld[3][0] = position.x;
+  cameraToWorld[3][1] = position.y;
+  cameraToWorld[3][2] = position.z;
+  cameraToWorld[3][3] = 1.0f;
 }

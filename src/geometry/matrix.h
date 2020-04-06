@@ -47,7 +47,7 @@ class Matrix4x4 {
 
   T *operator[](uint8_t i) { return m[i]; }
 
-  bool operator==(const Matrix4x4 &m2) const {
+  bool operator==(const Matrix4x4<T> &m2) const {
     for (uint8_t i = 0; i < 4; ++i) {
       for (uint8_t j = 0; j < 4; ++j) {
         if (m[i][j] != m2.m[i][j]) {
@@ -58,7 +58,7 @@ class Matrix4x4 {
     return true;
   }
 
-  bool operator!=(const Matrix4x4 &m2) const {
+  bool operator!=(const Matrix4x4<T> &m2) const {
     for (uint8_t i = 0; i < 4; ++i) {
       for (uint8_t j = 0; j < 4; ++j) {
         if (m[i][j] != m2.m[i][j]) {
@@ -69,8 +69,8 @@ class Matrix4x4 {
     return false;
   }
 
-  Matrix4x4 operator*(const Matrix4x4 &rhs) const {
-    Matrix4x4 r;
+  Matrix4x4<T> operator*(const Matrix4x4<T> &rhs) const {
+    Matrix4x4<T> r;
     for (uint8_t i = 0; i < 4; ++i) {
       for (uint8_t j = 0; j < 4; ++j) {
         r.m[i][j] = m[i][0] * rhs.m[0][j] + m[i][1] * rhs.m[1][j] +
@@ -80,24 +80,37 @@ class Matrix4x4 {
     return r;
   }
 
-  void multVecMatrix(const Vector3<T> &src, Vector3<T> &dst) const {
-    dst.x = src.x * m[0][0] + src.y * m[1][0] + src.z * m[2][0] + m[3][0];
-    dst.y = src.x * m[0][1] + src.y * m[1][1] + src.z * m[2][1] + m[3][1];
-    dst.z = src.x * m[0][2] + src.y * m[1][2] + src.z * m[2][2] + m[3][2];
-    T w = src.x * m[0][3] + src.y * m[1][3] + src.z * m[2][3] + m[3][3];
-    if (w != 1 && w != 0) {
-      dst.x = x / w;
-      dst.y = y / w;
-      dst.z = z / w;
+  /// Multiply a point using the inner 3x3 matrix. We implicitly assume that our
+  /// points have homogeneous coordinates so we need to normalize the w
+  /// component
+  Vector3<T> multiplyPoint(const Vector3<T> &rhs) const {
+    T x = m[0][0] * rhs.x + m[1][0] * rhs.y + m[2][0] * rhs.z + m[3][0];
+    T y = m[0][1] * rhs.x + m[1][1] * rhs.y + m[2][1] * rhs.z + m[3][1];
+    T z = m[0][2] * rhs.x + m[1][2] * rhs.y + m[2][2] * rhs.z + m[3][2];
+    T w = m[0][3] * rhs.x + m[1][3] * rhs.y + m[2][3] * rhs.z + m[3][3];
+
+    if (w == 1.0f) {
+      return Vector3f(x, y, z);
+    } else {
+      // Normalize components by w
+      return Vector3f(x, y, z) / w;
     }
   }
 
-  void multDirMatrix(const Vector3<T> &src, Vector3<T> &dst) const {
-    dst.x = src.x * m[0][0] + src.y * m[1][0] + src.z * m[2][0];
-    dst.y = src.x * m[0][1] + src.y * m[1][1] + src.z * m[2][1];
-    dst.z = src.x * m[0][2] + src.y * m[1][2] + src.z * m[2][2];
+  /// Multiply a vector using the inner 3x3 matrix
+  Vector3<T> multiplyVector(const Vector3<T> &rhs) const {
+    return Vector3<T>(m[0][0] * rhs.x + m[1][0] * rhs.y + m[2][0] * rhs.z,
+                      m[0][1] * rhs.x + m[1][1] * rhs.y + m[2][1] * rhs.z,
+                      m[0][2] * rhs.x + m[1][2] * rhs.y + m[2][2] * rhs.z);
   }
 
+  Matrix4x4<T> transpose() const {
+    return Matrix4x4<T>(m[0][0], m[1][0], m[2][0], m[3][0], m[0][1], m[1][1],
+                        m[2][1], m[3][1], m[0][2], m[1][2], m[2][2], m[3][2],
+                        m[0][3], m[1][3], m[2][3], m[3][3]);
+  }
+
+  // Initialize matrix as the identity matrix
   T m[4][4] = {{1, 0, 0, 0}, {0, 1, 0, 0}, {0, 0, 1, 0}, {0, 0, 0, 1}};
 };
 
