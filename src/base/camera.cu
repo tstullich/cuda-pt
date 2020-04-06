@@ -1,10 +1,11 @@
 #include "camera.h"
 
+/// TODO Add focalLength for defocus blur
 gm::PerspectiveCamera::PerspectiveCamera(const Vector3f &position,
                                          const Vector3f &lookAt,
                                          const Vector3f &up, size_t imageWidth,
-                                         size_t imageHeight, float fov,
-                                         float focalLength) {
+                                         size_t imageHeight, float fov)
+    : imageWidth(imageWidth), imageHeight(imageHeight) {
   aspectRatio = static_cast<float>(imageWidth) / imageHeight;
   scale = tan((fov * 0.5f) * M_PI / 180.0f);
 

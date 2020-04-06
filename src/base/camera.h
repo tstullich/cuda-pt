@@ -16,7 +16,7 @@ class PerspectiveCamera {
 
   PerspectiveCamera(const Vector3f &position, const Vector3f &lookAt,
                     const Vector3f &up, size_t imageWidth, size_t imageHeight,
-                    float fov, float focalLength);
+                    float fov);
 
   // Compute a new camera ray for the given raster space coordinate
   Ray generate_ray(uint32_t xPos, uint32_t yPos);

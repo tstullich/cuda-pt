@@ -2,14 +2,14 @@
 
 gm::Integrator::Integrator() {
   image = std::unique_ptr<RGBImage>(new RGBImage(IMAGE_WIDTH, IMAGE_HEIGHT));
-  camera = PerspectiveCamera(
+  camera = std::shared_ptr<PerspectiveCamera>(new PerspectiveCamera(
       Vector3f(0.0f, 0.0f, 1.0f), Vector3f(0.0f, 0.0f, 0.0f),
-      Vector3f(0.0f, 1.0f, 0.0f), IMAGE_WIDTH, IMAGE_HEIGHT, 70.0f, 35.0f);
+      Vector3f(0.0f, 1.0f, 0.0f), IMAGE_WIDTH, IMAGE_HEIGHT, 70.0f));
 }
 
 // The entry point for the path tracing kernel. This should be called from
 // the integrate function only
-__global__ void pathtrace(uint8_t *image, size_t width, size_t channels) {
+__global__ void pathtraceGPU(uint8_t *image, size_t width, size_t channels) {
   size_t row = blockIdx.y * blockDim.y + threadIdx.y;
   size_t col = blockIdx.x * blockDim.x + threadIdx.x;
   size_t pixelIdx = (row * width + col) * channels;
@@ -17,6 +17,24 @@ __global__ void pathtrace(uint8_t *image, size_t width, size_t channels) {
   image[pixelIdx] = 255;
   image[pixelIdx + 1] = 0;
   image[pixelIdx + 2] = 0;
+}
+
+/// Only a test function. Should be replaced later on
+void gm::Integrator::pathtrace() {
+  uint8_t *imageBuffer = image->getBuffer();
+  for (uint32_t row = 0; row < image->getHeight(); ++row) {
+    for (uint32_t col = 0; col < image->getWidth(); ++col) {
+      Ray r = camera->generate_ray(row, col);
+      Vector3f hitColor =
+          ((r.direction + Vector3f(1.0f, 1.0f, 1.0f)) * 0.5) * 255.99;
+
+      size_t pixelIdx = (row * image->getWidth() + col) * image->getChannels();
+      imageBuffer[pixelIdx] = static_cast<uint8_t>(hitColor.x);
+      imageBuffer[pixelIdx + 1] = static_cast<uint8_t>(hitColor.y);
+      imageBuffer[pixelIdx + 2] = static_cast<uint8_t>(hitColor.z);
+    }
+  }
+  image->writePNG("test.png");
 }
 
 void gm::Integrator::integrate() {
@@ -37,7 +55,7 @@ void gm::Integrator::integrate() {
 
   // Launch the path tracing kernel. This is the main entry point for
   // gamma's logic
-  pathtrace<<<gridDimensions, blockDimensions>>>(
+  pathtraceGPU<<<gridDimensions, blockDimensions>>>(
       gpuImage.get(), image->getWidth(), image->getChannels());
 
   // Sync all of the threads before continuing
