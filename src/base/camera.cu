@@ -37,7 +37,7 @@ void gm::PerspectiveCamera::setCameraToWorld(const Vector3f &position,
                                              const Vector3f &up) {
   // Create the three basis vectors for the camera orientation
   Vector3f view = normalize(position - lookAt);
-  Vector3f right = normalize(cross(view, up));
+  Vector3f right = normalize(cross(normalize(up), view));
   Vector3f newUp = cross(view, right);
 
   if (right.length() == 0.0f) {
