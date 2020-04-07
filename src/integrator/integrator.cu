@@ -22,16 +22,17 @@ __global__ void pathtraceGPU(uint8_t *image, size_t width, size_t channels) {
 /// Only a test function. Should be replaced later on
 void gm::Integrator::pathtrace() {
   uint8_t *imageBuffer = image->getBuffer();
-  for (uint32_t row = 0; row < image->getHeight(); ++row) {
-    for (uint32_t col = 0; col < image->getWidth(); ++col) {
-      Ray r = camera->generate_ray(row, col);
-      Vector3f hitColor =
-          ((r.direction + Vector3f(1.0f, 1.0f, 1.0f)) * 0.5) * 255.99;
+  size_t imageWidth = image->getWidth();
+  size_t imageHeight = image->getHeight();
+  for (uint32_t yCoord = 0; yCoord < imageHeight; ++yCoord) {
+    for (uint32_t xCoord = 0; xCoord < imageWidth; ++xCoord) {
+      Ray r = camera->generate_ray(xCoord, yCoord);
+      Vector3f hitColor = (r.direction + Vector3f(1.0f, 1.0f, 1.0f)) * 0.5;
 
-      size_t pixelIdx = (row * image->getWidth() + col) * image->getChannels();
-      imageBuffer[pixelIdx] = static_cast<uint8_t>(hitColor.x);
-      imageBuffer[pixelIdx + 1] = static_cast<uint8_t>(hitColor.y);
-      imageBuffer[pixelIdx + 2] = static_cast<uint8_t>(hitColor.z);
+      size_t pixelIdx = (yCoord * imageWidth + xCoord) * image->getChannels();
+      imageBuffer[pixelIdx] = static_cast<uint8_t>(hitColor.x * 255.99);
+      imageBuffer[pixelIdx + 1] = static_cast<uint8_t>(hitColor.y * 255.99);
+      imageBuffer[pixelIdx + 2] = static_cast<uint8_t>(hitColor.z * 255.99);
     }
   }
   image->writePNG("test.png");

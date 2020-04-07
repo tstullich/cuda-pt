@@ -26,7 +26,9 @@ gm::Ray gm::PerspectiveCamera::generate_ray(uint32_t xCoord, uint32_t yCoord) {
 
   // Position vector at the NDC plane looking in the negative z direction
   Vector3f direction(x, y, -1.0f);
-  // Transform direction vector using the camera-to-world matrix and normalize
+
+  // Transform direction vector using the camera-to-world matrix and
+  // normalize
   direction = normalize(cameraToWorld.multiplyVector(direction));
 
   return Ray(origin, direction);

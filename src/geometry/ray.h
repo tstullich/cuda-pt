@@ -10,7 +10,7 @@ class Ray {
  public:
   Ray()
       : origin(Vector3f(0.0f, 0.0f, 0.0f)),
-        direction(Vector3f(0.0f, 0.0f, -1.0f)),
+        direction(Vector3f(0.0f, 0.0f, 0.0f)),
         tMin(0.1f),
         tMax(INFINITY){};
 
