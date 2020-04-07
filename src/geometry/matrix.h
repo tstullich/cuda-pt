@@ -90,10 +90,10 @@ class Matrix4x4 {
     T w = m[0][3] * rhs.x + m[1][3] * rhs.y + m[2][3] * rhs.z + m[3][3];
 
     if (w == 1.0f) {
-      return Vector3f(x, y, z);
+      return Vector3<T>(x, y, z);
     } else {
       // Normalize components by w
-      return Vector3f(x, y, z) / w;
+      return Vector3<T>(x, y, z) / w;
     }
   }
 
