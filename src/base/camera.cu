@@ -18,13 +18,14 @@ gm::Ray gm::PerspectiveCamera::generate_ray(uint32_t xCoord, uint32_t yCoord) {
   // Transform origin point using the camera-to-world matrix
   origin = cameraToWorld.multiplyPoint(origin);
 
-  // Create a projection point on the NDC plane
+  // Create a projection point on the image plane using normalized device
+  // coordinates.
   float x = (2.0f * (xCoord + 0.5f) / static_cast<float>(imageWidth) - 1.0f) *
             aspectRatio * scale;
   float y =
       (1.0f - 2.0f * (yCoord + 0.5f) / static_cast<float>(imageHeight)) * scale;
 
-  // Position vector at the NDC plane looking in the negative z direction
+  // Position vector at the image plane looking in the negative z direction
   Vector3f direction(x, y, -1.0f);
 
   // Transform direction vector using the camera-to-world matrix and

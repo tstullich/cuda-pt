@@ -6,6 +6,11 @@
 #include "vector.h"
 
 namespace gm {
+
+/// A class that encapsulates data for ray creation. Gamma does not treat
+/// points and vectors differently, which is why the origin vector also
+/// has the Vector3f data type. tMin is set at 0.1, slightly in front of
+/// the camera's position.
 class Ray {
  public:
   Ray()

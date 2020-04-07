@@ -10,6 +10,10 @@
 
 namespace gm {
 
+/// A camera class that implements a camera with perspective projection.
+/// When generating primary camera rays the convention is to form rays
+/// at the image plane and then transform them using the cameraToWorld
+/// matrix provided in this class.
 class PerspectiveCamera {
  public:
   PerspectiveCamera(){};

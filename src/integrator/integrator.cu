@@ -27,7 +27,9 @@ void gm::Integrator::pathtrace() {
   for (uint32_t yCoord = 0; yCoord < imageHeight; ++yCoord) {
     for (uint32_t xCoord = 0; xCoord < imageWidth; ++xCoord) {
       Ray r = camera->generate_ray(xCoord, yCoord);
-      Vector3f hitColor = (r.direction + Vector3f(1.0f, 1.0f, 1.0f)) * 0.5;
+      float t = (r.direction.y + 1.0f) * 0.5f;
+      Vector3f hitColor =
+          Vector3f(1.0f) * (1.0f - t) + Vector3f(0.5f, 0.7f, 1.0f) * t;
 
       size_t pixelIdx = (yCoord * imageWidth + xCoord) * image->getChannels();
       imageBuffer[pixelIdx] = static_cast<uint8_t>(hitColor.x * 255.99);
