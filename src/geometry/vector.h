@@ -19,7 +19,7 @@ class Vector2 {
  public:
   Vector2() : x(0), y(0){};
 
-  Vector2(T xx, T yy) : x(xx), y(yy) {
+  Vector2(T x, T y) : x(x), y(y) {
     if (hasNans()) {
       // TODO Find a way to handle errors inside device code
     }
@@ -127,7 +127,9 @@ class Vector3 {
  public:
   Vector3() : x(0), y(0), z(0){};
 
-  Vector3(T xx, T yy, T zz) : x(xx), y(yy), z(zz) {
+  Vector3(T x) : x(x), y(x), z(x){};
+
+  Vector3(T x, T y, T z) : x(x), y(y), z(z) {
     if (hasNans()) {
       // TODO Find a way to handle errors inside device code
     }
