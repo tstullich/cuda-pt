@@ -5,3 +5,7 @@
 	path = extern/glm
 	url = https://github.com/g-truc/glm
 	branch = 0.9.8
+[submodule "extern/tinygltf"]
+	path = extern/tinygltf
+	url = https://github.com/syoyo/tinygltf.git
+	branch = 29c431b2f23ee39e2b8d0d19de487e3c2a1d0848

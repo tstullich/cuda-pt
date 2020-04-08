@@ -2,6 +2,9 @@
 set(SOURCE_FILES
     base/camera.cu
     base/image.cu
+    base/object.cu
+    base/mesh.cu
+    base/scene.cu
     integrator/integrator.cu
 )
 

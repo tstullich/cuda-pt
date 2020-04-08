@@ -6,6 +6,7 @@
 #include <iostream>
 
 #include "matrix.h"
+#include "object.h"
 #include "ray.h"
 
 namespace gm {
@@ -14,7 +15,7 @@ namespace gm {
 /// When generating primary camera rays the convention is to form rays
 /// at the image plane and then transform them using the cameraToWorld
 /// matrix provided in this class.
-class PerspectiveCamera {
+class PerspectiveCamera : public Object {
  public:
   PerspectiveCamera(){};
 
