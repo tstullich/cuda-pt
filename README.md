@@ -2,6 +2,8 @@
 Welcome to the source code page of gamma, the hybrid path tracer. For build instructions see the section below
 and for more general information visit the wiki.
 
+_Gamma is still a work in progress and the code is currently not ready for a release. Please be aware of this fact when checking out the code._
+
 # Build Instructions
 Make sure to have the following dependencies installed somewhere on your system:
 
