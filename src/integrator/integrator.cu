@@ -1,10 +1,15 @@
 #include "integrator.h"
 
-gm::Integrator::Integrator() { image = std::make_unique<RGBImage>(200, 100); }
+gm::Integrator::Integrator() {
+  image = std::unique_ptr<RGBImage>(new RGBImage(IMAGE_WIDTH, IMAGE_HEIGHT));
+  camera = std::shared_ptr<PerspectiveCamera>(new PerspectiveCamera(
+      Vector3f(0.0f, 0.0f, 1.0f), Vector3f(0.0f, 0.0f, 0.0f),
+      Vector3f(0.0f, 1.0f, 0.0f), IMAGE_WIDTH, IMAGE_HEIGHT, 70.0f));
+}
 
 // The entry point for the path tracing kernel. This should be called from
 // the integrate function only
-__global__ void pathtrace(uint8_t *image, size_t width, size_t channels) {
+__global__ void pathtraceGPU(uint8_t *image, size_t width, size_t channels) {
   size_t row = blockIdx.y * blockDim.y + threadIdx.y;
   size_t col = blockIdx.x * blockDim.x + threadIdx.x;
   size_t pixelIdx = (row * width + col) * channels;
@@ -12,6 +17,27 @@ __global__ void pathtrace(uint8_t *image, size_t width, size_t channels) {
   image[pixelIdx] = 255;
   image[pixelIdx + 1] = 0;
   image[pixelIdx + 2] = 0;
+}
+
+/// Only a test function. Should be replaced later on
+void gm::Integrator::pathtrace() {
+  uint8_t *imageBuffer = image->getBuffer();
+  size_t imageWidth = image->getWidth();
+  size_t imageHeight = image->getHeight();
+  for (uint32_t yCoord = 0; yCoord < imageHeight; ++yCoord) {
+    for (uint32_t xCoord = 0; xCoord < imageWidth; ++xCoord) {
+      Ray r = camera->generate_ray(xCoord, yCoord);
+      float t = (r.direction.y + 1.0f) * 0.5f;
+      Vector3f hitColor =
+          Vector3f(1.0f) * (1.0f - t) + Vector3f(0.5f, 0.7f, 1.0f) * t;
+
+      size_t pixelIdx = (yCoord * imageWidth + xCoord) * image->getChannels();
+      imageBuffer[pixelIdx] = static_cast<uint8_t>(hitColor.x * 255.99);
+      imageBuffer[pixelIdx + 1] = static_cast<uint8_t>(hitColor.y * 255.99);
+      imageBuffer[pixelIdx + 2] = static_cast<uint8_t>(hitColor.z * 255.99);
+    }
+  }
+  image->writePNG("test.png");
 }
 
 void gm::Integrator::integrate() {
@@ -32,9 +58,10 @@ void gm::Integrator::integrate() {
 
   // Launch the path tracing kernel. This is the main entry point for
   // gamma's logic
-  pathtrace<<<gridDimensions, blockDimensions>>>(
+  pathtraceGPU<<<gridDimensions, blockDimensions>>>(
       gpuImage.get(), image->getWidth(), image->getChannels());
 
+  // Sync all of the threads before continuing
   cudaDeviceSynchronize();
 
   // Copy result into CPU/host memory to write to a file

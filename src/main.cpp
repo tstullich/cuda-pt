@@ -7,7 +7,8 @@
 int main(int argc, char** argv) {
   try {
     gm::Integrator integrator;
-    integrator.integrate();
+    // integrator.integrate();
+    integrator.pathtrace();
   } catch (std::exception& e) {
     std::cerr << e.what() << std::endl;
     return EXIT_FAILURE;
