@@ -11,8 +11,20 @@ __host__ gm::Scene::Scene(const std::string &filepath) {
   std::string err;
   std::string warn;
 
+  std::ifstream fileStream;
+
+  fileStream.open(filepath);
+  if (fileStream.bad()) {
+    std::cout << "Unable to open file: " << filepath << std::endl;
+  }
+
+  char magicNumber[4];
+  fileStream.read(magicNumber, 4);
+  fileStream.close();
+
   bool ret = false;
-  if (filepath.substr(filepath.length() - 4, filepath.length()) == ".glb") {
+  // Check magic number 0x46546c67 == "glTF"
+  if (*reinterpret_cast<int *>(magicNumber) == 0x46546c67) {
     ret = loader.LoadBinaryFromFile(&model, &err, &warn, filepath);
   } else if (filepath.substr(filepath.length() - 5, filepath.length()) ==
              ".gltf") {
