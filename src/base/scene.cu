@@ -73,8 +73,9 @@ std::vector<std::shared_ptr<gm::Object>> gm::Scene::load_objects(
 std::shared_ptr<gm::Mesh> gm::Scene::load_mesh(tinygltf::Node node,
                                                tinygltf::Model model) {
   Vector3f location;
+  Quaternionf rotation;
   Vector3f scale;
-  load_transform(node, location, scale);
+  load_transform(node, location, rotation, scale);
 
   std::vector<tinygltf::Mesh> meshes = model.meshes;
   std::vector<tinygltf::Buffer> buffers = model.buffers;
@@ -155,24 +156,27 @@ std::shared_ptr<gm::Mesh> gm::Scene::load_mesh(tinygltf::Node node,
     primitiveOffset += primitivePositions.size();
   }
 
-  return std::shared_ptr<Mesh>(
-      new Mesh(positions, normals, faces, node.name, location, scale));
+  return std::shared_ptr<Mesh>(new Mesh(positions, normals, faces, node.name,
+                                        location, rotation, scale));
 }
 
 std::shared_ptr<gm::Object> gm::Scene::load_empty(tinygltf::Node node,
                                                   tinygltf::Model model) {
   Vector3f location;
+  Quaternionf rotation;
   Vector3f scale;
-  load_transform(node, location, scale);
+  load_transform(node, location, rotation, scale);
 
-  return std::shared_ptr<Object>(new Object(location, scale, node.name));
+  return std::shared_ptr<Object>(
+      new Object(location, rotation, scale, node.name));
 }
 
 std::shared_ptr<gm::PerspectiveCamera> gm::Scene::load_camera(
     tinygltf::Node node, tinygltf::Model model) {
   Vector3f location;
+  Quaternionf rotation;
   Vector3f scale;
-  load_transform(node, location, scale);
+  load_transform(node, location, rotation, scale);
 
   tinygltf::Camera camearaData = model.cameras[node.camera];
 
@@ -188,7 +192,7 @@ std::shared_ptr<gm::PerspectiveCamera> gm::Scene::load_camera(
 }
 
 void gm::Scene::load_transform(tinygltf::Node node, Vector3f &location,
-                               Vector3f &scale) {
+                               Quaternionf &rotation, Vector3f &scale) {
   if (node.translation.size() == 3) {
     location =
         Vector3f(node.translation[0], node.translation[1], node.translation[2]);
@@ -202,5 +206,11 @@ void gm::Scene::load_transform(tinygltf::Node node, Vector3f &location,
     scale = Vector3f(1);
   }
 
-  // TODO load rotation
+  if (node.rotation.size() == 4) {
+    rotation = Quaternionf(node.rotation[0], node.rotation[1], node.rotation[2],
+                           node.rotation[3]);
+    std::cout << "loading rotation" << std::endl;
+  } else {
+    rotation = Quaternionf();
+  }
 }

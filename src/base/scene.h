@@ -27,6 +27,7 @@ class Scene {
       std::vector<int> node_ids, tinygltf::Model model,
       std::shared_ptr<Object> parent = nullptr);
 
-  void load_transform(tinygltf::Node node, Vector3f &location, Vector3f &scale);
+  void load_transform(tinygltf::Node node, Vector3f &location,
+                      Quaternionf &rotation, Vector3f &scale);
 };
 }  // namespace gm
