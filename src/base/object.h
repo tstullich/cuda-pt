@@ -10,10 +10,10 @@
 namespace gm {
 class Object {
  public:
-  Object(const Vector3f location = Vector3f(),
-         const Quaternionf rotation = Quaternionf(),
-         const Vector3f scale = Vector3f(1.f, 1.f, 1.f),
-         const std::string name = "");
+  Object(const Vector3f &location = Vector3f(),
+         const Quaternionf &rotation = Quaternionf(),
+         const Vector3f &scale = Vector3f(1.f, 1.f, 1.f),
+         const std::string &name = "");
 
   Vector3f get_location();
   std::string name;

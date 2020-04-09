@@ -11,7 +11,7 @@ namespace gm {
 class Scene {
  public:
   Scene(){};
-  Scene(std::string filepath);
+  Scene(const std::string &filepath);
   void addObject(std::shared_ptr<Object> o);
   std::shared_ptr<PerspectiveCamera> getCamera();
   std::vector<std::shared_ptr<Object>> objects;

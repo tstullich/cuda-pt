@@ -137,8 +137,9 @@ std::shared_ptr<gm::Mesh> gm::Scene::load_mesh(tinygltf::Node node,
     // TODO check data type
     short *facesBytes =
         reinterpret_cast<short *>(facesBuffer.data.data() + facesBufferOffset);
-    size_t faceCount = facesAccessor.count /
-                       3;  // gltf only supports triangles. No quads or ngons
+    static const size_t faceCount =
+        facesAccessor.count /
+        3;  // gltf only supports triangles. No quads or ngons
 
     std::vector<Vector3i> primitiveFaces(faceCount);
     for (size_t f = 0; f < faceCount; ++f) {
@@ -178,13 +179,13 @@ std::shared_ptr<gm::PerspectiveCamera> gm::Scene::load_camera(
   Vector3f scale;
   load_transform(node, location, rotation, scale);
 
-  tinygltf::Camera camearaData = model.cameras[node.camera];
+  tinygltf::Camera cameraData = model.cameras[node.camera];
 
-  if (camearaData.type != "perspective") {
+  if (cameraData.type != "perspective") {
     // Error only perspective cameras are supported
     // TODO handle error
   }
-  float fov = camearaData.perspective.yfov;
+  float fov = cameraData.perspective.yfov;
 
   // TODO fix camera paramters
   return std::shared_ptr<PerspectiveCamera>(new PerspectiveCamera(
