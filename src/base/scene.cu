@@ -47,17 +47,8 @@ __host__ gm::Scene::Scene(const std::string &filepath) {
   }
 
   tinygltf::Scene gltfScene = model.scenes[model.defaultScene];
-  std::cout << "Loading scene " << gltfScene.name << std::endl;
+  std::cout << "Loading scene '" << gltfScene.name << "'" << std::endl;
   this->objects = load_objects(gltfScene.nodes, model);
-
-  for (size_t i = 0; i < this->objects.size(); ++i) {
-    if (this->objects[i] != nullptr) {
-      std::cout << this->objects[i]->name
-                << " location:" << this->objects[i]->location[0] << ", "
-                << this->objects[i]->location[1] << ", "
-                << this->objects[i]->location[2] << std::endl;
-    }
-  }
 }
 
 std::vector<std::shared_ptr<gm::SceneObject>> gm::Scene::load_objects(
@@ -66,7 +57,9 @@ std::vector<std::shared_ptr<gm::SceneObject>> gm::Scene::load_objects(
   std::vector<std::shared_ptr<SceneObject>> objects;
   std::shared_ptr<SceneObject> current;
   objects.reserve(node_ids.size());
-  std::cout << "Loading " << node_ids.size() << " objects" << std::endl;
+  if (node_ids.size() > 0) {
+    std::cout << "Loading " << node_ids.size() << " object(s)" << std::endl;
+  }
   for (size_t i = 0; i < node_ids.size(); ++i) {
     tinygltf::Node node = model.nodes[node_ids[i]];
     if (node.mesh != -1) {
@@ -222,7 +215,6 @@ void gm::Scene::load_transform(tinygltf::Node node, Vector3f &location,
   if (node.rotation.size() == 4) {
     rotation = Quaternionf(node.rotation[0], node.rotation[1], node.rotation[2],
                            node.rotation[3]);
-    std::cout << "loading rotation" << std::endl;
   } else {
     rotation = Quaternionf();
   }
