@@ -139,19 +139,33 @@ std::shared_ptr<gm::Mesh> gm::Scene::load_mesh(tinygltf::Node node,
     // Extract face indices
     size_t facesBufferOffset = facesBufferView.byteOffset;
     size_t facesBufferLength = facesBufferView.byteLength;
-    // TODO handle byteStride
-    // TODO check data type
-    short *facesBytes =
-        reinterpret_cast<short *>(facesBuffer.data.data() + facesBufferOffset);
+
     static const size_t faceCount =
         facesAccessor.count /
         3;  // gltf only supports triangles. No quads or ngons
 
     std::vector<Vector3i> primitiveFaces(faceCount);
-    for (size_t f = 0; f < faceCount; ++f) {
-      primitiveFaces[f] = Vector3i(facesBytes[f * 3] + primitiveOffset,
-                                   facesBytes[f * 3 + 1] + primitiveOffset,
-                                   facesBytes[f * 3 + 2] + primitiveOffset);
+
+    // TODO handle byteStride
+
+    if (facesAccessor.componentType == 5123) {  // Component type unsigned short
+      unsigned short *facesBytes = reinterpret_cast<unsigned short *>(
+          facesBuffer.data.data() + facesBufferOffset);
+      for (size_t f = 0; f < faceCount; ++f) {
+        primitiveFaces[f] = Vector3i(facesBytes[f * 3] + primitiveOffset,
+                                     facesBytes[f * 3 + 1] + primitiveOffset,
+                                     facesBytes[f * 3 + 2] + primitiveOffset);
+      }
+
+    } else if (facesAccessor.componentType ==
+               5125) {  // Component type unsigned int
+      unsigned int *facesBytes = reinterpret_cast<unsigned int *>(
+          facesBuffer.data.data() + facesBufferOffset);
+      for (size_t f = 0; f < faceCount; ++f) {
+        primitiveFaces[f] = Vector3i(facesBytes[f * 3] + primitiveOffset,
+                                     facesBytes[f * 3 + 1] + primitiveOffset,
+                                     facesBytes[f * 3 + 2] + primitiveOffset);
+      }
     }
 
     positions.insert(positions.end(), primitivePositions.begin(),
