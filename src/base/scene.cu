@@ -65,6 +65,7 @@ std::vector<std::shared_ptr<gm::SceneObject>> gm::Scene::load_objects(
     std::shared_ptr<SceneObject> parent) {
   std::vector<std::shared_ptr<SceneObject>> objects;
   std::shared_ptr<SceneObject> current;
+  objects.reserve(node_ids.size());
   std::cout << "Loading " << node_ids.size() << " objects" << std::endl;
   for (size_t i = 0; i < node_ids.size(); ++i) {
     tinygltf::Node node = model.nodes[node_ids[i]];
