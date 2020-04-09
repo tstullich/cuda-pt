@@ -26,6 +26,10 @@ class PerspectiveCamera : public Object {
   // Compute a new camera ray for the given raster space coordinate
   Ray generate_ray(uint32_t xPos, uint32_t yPos);
 
+  virtual bool isMesh() { return false; }
+  virtual bool isCamera() { return true; }
+  virtual bool isEmpty() { return false; }
+
  private:
   void setCameraToWorld(const Vector3f &position, const Vector3f &lookAt,
                         const Vector3f &up);

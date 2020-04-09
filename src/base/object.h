@@ -19,5 +19,8 @@ class Object {
   Vector3f scale;
   std::shared_ptr<Object> parent;
   std::vector<std::shared_ptr<Object>> children;
+  virtual bool isMesh() { return false; }
+  virtual bool isCamera() { return false; }
+  virtual bool isEmpty() { return true; }
 };
 }  // namespace gm
