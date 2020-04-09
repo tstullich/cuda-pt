@@ -8,7 +8,7 @@
 #include "vector.h"
 
 namespace gm {
-class Mesh : public Object {
+class Mesh : public SceneObject {
  public:
   Mesh(const std::vector<Vector3f> &vertices,
        const std::vector<Vector3f> &normals, const std::vector<Vector3i> &faces,

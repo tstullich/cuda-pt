@@ -1,10 +1,11 @@
 #include "mesh.h"
 
-gm::Mesh::Mesh(std::vector<Vector3f> vertices, std::vector<Vector3f> normals,
-               std::vector<Vector3i> faces, std::string name, Vector3f location,
-               Quaternionf rotation, Vector3f scale)
-    : Object(location, rotation, scale, name) {
-  this->vertices = vertices;
-  this->normals = normals;
-  this->faces = faces;
-}
+gm::Mesh::Mesh(const std::vector<Vector3f> &vertices,
+               const std::vector<Vector3f> &normals,
+               const std::vector<Vector3i> &faces, const std::string &name,
+               const Vector3f &location, const Quaternionf &rotation,
+               const Vector3f &scale)
+    : SceneObject(location, rotation, scale, name),
+      vertices(vertices),
+      normals(normals),
+      faces(faces) {}

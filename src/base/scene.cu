@@ -5,7 +5,7 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include "tiny_gltf.h"
 
-__host__ gm::Scene::Scene(std::string filepath) {
+__host__ gm::Scene::Scene(const std::string &filepath) {
   tinygltf::Model model;
   tinygltf::TinyGLTF loader;
   std::string err;
@@ -48,11 +48,11 @@ __host__ gm::Scene::Scene(std::string filepath) {
   }
 }
 
-std::vector<std::shared_ptr<gm::Object>> gm::Scene::load_objects(
+std::vector<std::shared_ptr<gm::SceneObject>> gm::Scene::load_objects(
     std::vector<int> node_ids, tinygltf::Model model,
-    std::shared_ptr<Object> parent) {
-  std::vector<std::shared_ptr<Object>> objects;
-  std::shared_ptr<Object> current;
+    std::shared_ptr<SceneObject> parent) {
+  std::vector<std::shared_ptr<SceneObject>> objects;
+  std::shared_ptr<SceneObject> current;
   std::cout << "Loading " << node_ids.size() << " objects" << std::endl;
   for (size_t i = 0; i < node_ids.size(); ++i) {
     tinygltf::Node node = model.nodes[node_ids[i]];
@@ -161,15 +161,15 @@ std::shared_ptr<gm::Mesh> gm::Scene::load_mesh(tinygltf::Node node,
                                         location, rotation, scale));
 }
 
-std::shared_ptr<gm::Object> gm::Scene::load_empty(tinygltf::Node node,
-                                                  tinygltf::Model model) {
+std::shared_ptr<gm::SceneObject> gm::Scene::load_empty(tinygltf::Node node,
+                                                       tinygltf::Model model) {
   Vector3f location;
   Quaternionf rotation;
   Vector3f scale;
   load_transform(node, location, rotation, scale);
 
-  return std::shared_ptr<Object>(
-      new Object(location, rotation, scale, node.name));
+  return std::shared_ptr<SceneObject>(
+      new SceneObject(location, rotation, scale, node.name));
 }
 
 std::shared_ptr<gm::PerspectiveCamera> gm::Scene::load_camera(
