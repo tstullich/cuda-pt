@@ -16,8 +16,8 @@ class Quaternion {
   Quaternion() : x(1), y(0), z(0), w(0) {}
   Quaternion(T x, T y, T z, T w) : x(x), y(y), z(z), w(w) {}
 
-  Matrix4x4<T> toMat4() {
-    Matrix4x4<T> result();
+  Matrix4x4<T> toMat4() const {
+    Matrix4x4<T> result;
     T qxx(x * x);
     T qyy(y * y);
     T qzz(z * z);

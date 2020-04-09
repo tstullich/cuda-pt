@@ -200,9 +200,8 @@ std::shared_ptr<gm::PerspectiveCamera> gm::Scene::load_camera(
   }
   float fov = cameraData.perspective.yfov;
 
-  // TODO fix camera paramters
-  return std::shared_ptr<PerspectiveCamera>(new PerspectiveCamera(
-      location, Vector3f(1, 0, 0), Vector3f(0, 0, 1), 200, 200, fov));
+  return std::shared_ptr<PerspectiveCamera>(
+      new PerspectiveCamera(location, rotation, fov, node.name));
 }
 
 void gm::Scene::load_transform(tinygltf::Node node, Vector3f &location,

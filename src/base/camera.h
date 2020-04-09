@@ -23,8 +23,20 @@ class PerspectiveCamera : public SceneObject {
                     const Vector3f &up, size_t imageWidth, size_t imageHeight,
                     float fov);
 
+  // This constructor is based on the information that is included in a glTF
+  // file.
+  PerspectiveCamera(const Vector3f &location, const Quaternionf &rotation,
+                    const float &fov, const std::string &name);
+
   // Compute a new camera ray for the given raster space coordinate
   Ray generate_ray(uint32_t xPos, uint32_t yPos);
+
+  // Allow setting the image dimensions
+  void setImageSize(const size_t &width, const size_t &height) {
+    imageWidth = width;
+    imageHeight = height;
+    aspectRatio = static_cast<float>(imageWidth) / imageHeight;
+  }
 
   virtual bool isMesh() { return false; }
   virtual bool isCamera() { return true; }
