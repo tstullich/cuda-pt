@@ -14,7 +14,7 @@ __host__ gm::Scene::Scene(const std::string &filepath) {
   std::ifstream fileStream;
 
   fileStream.open(filepath);
-  if (fileStream.bad()) {
+  if (fileStream.fail()) {
     std::cout << "Unable to open file: " << filepath << std::endl;
   }
 
