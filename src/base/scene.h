@@ -26,7 +26,7 @@ class Scene {
 
   std::vector<std::shared_ptr<SceneObject>> load_objects(
       const std::vector<int> &node_ids, const tinygltf::Model &model,
-      const std::shared_ptr<SceneObject> &parent = nullptr);
+      const std::shared_ptr<SceneObject> &parent);
 
   void load_transform(const tinygltf::Node &node, Vector3f &location,
                       Quaternionf &rotation, Vector3f &scale);
