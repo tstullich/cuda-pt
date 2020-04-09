@@ -12,22 +12,23 @@ class Scene {
  public:
   Scene(){};
   Scene(const std::string &filepath);
-  void addObject(std::shared_ptr<SceneObject> o);
+  void addObject(const std::shared_ptr<SceneObject> &o);
   std::shared_ptr<PerspectiveCamera> getCamera();
   std::vector<std::shared_ptr<SceneObject>> objects;
 
  private:
-  std::shared_ptr<PerspectiveCamera> load_camera(tinygltf::Node node,
-                                                 tinygltf::Model model);
-  std::shared_ptr<Mesh> load_mesh(tinygltf::Node node, tinygltf::Model model);
-  std::shared_ptr<SceneObject> load_empty(tinygltf::Node node,
-                                          tinygltf::Model model);
+  std::shared_ptr<PerspectiveCamera> load_camera(const tinygltf::Node &node,
+                                                 const tinygltf::Model &model);
+  std::shared_ptr<Mesh> load_mesh(const tinygltf::Node &node,
+                                  const tinygltf::Model &model);
+  std::shared_ptr<SceneObject> load_empty(const tinygltf::Node &node,
+                                          const tinygltf::Model &model);
 
   std::vector<std::shared_ptr<SceneObject>> load_objects(
-      std::vector<int> node_ids, tinygltf::Model model,
-      std::shared_ptr<SceneObject> parent = nullptr);
+      const std::vector<int> &node_ids, const tinygltf::Model &model,
+      const std::shared_ptr<SceneObject> &parent = nullptr);
 
-  void load_transform(tinygltf::Node node, Vector3f &location,
+  void load_transform(const tinygltf::Node &node, Vector3f &location,
                       Quaternionf &rotation, Vector3f &scale);
 };
 }  // namespace gm

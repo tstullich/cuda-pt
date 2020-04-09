@@ -18,8 +18,10 @@ __host__ gm::Scene::Scene(const std::string &filepath) {
     std::cout << "Unable to open file: " << filepath << std::endl;
   }
 
-  char magicNumber[4];
-  fileStream.read(magicNumber, 4);
+  static const uint8_t HEADER_BYTES = 4;
+
+  char magicNumber[HEADER_BYTES];
+  fileStream.read(magicNumber, HEADER_BYTES);
   fileStream.close();
 
   bool ret = false;
@@ -52,8 +54,8 @@ __host__ gm::Scene::Scene(const std::string &filepath) {
 }
 
 std::vector<std::shared_ptr<gm::SceneObject>> gm::Scene::load_objects(
-    std::vector<int> node_ids, tinygltf::Model model,
-    std::shared_ptr<SceneObject> parent) {
+    const std::vector<int> &node_ids, const tinygltf::Model &model,
+    const std::shared_ptr<SceneObject> &parent) {
   std::vector<std::shared_ptr<SceneObject>> objects;
   std::shared_ptr<SceneObject> current;
   objects.reserve(node_ids.size());
@@ -76,12 +78,14 @@ std::vector<std::shared_ptr<gm::SceneObject>> gm::Scene::load_objects(
   return objects;
 }
 
-std::shared_ptr<gm::Mesh> gm::Scene::load_mesh(tinygltf::Node node,
-                                               tinygltf::Model model) {
+std::shared_ptr<gm::Mesh> gm::Scene::load_mesh(const tinygltf::Node &node,
+                                               const tinygltf::Model &model) {
   Vector3f location;
   Quaternionf rotation;
   Vector3f scale;
   load_transform(node, location, rotation, scale);
+
+  static const uint8_t TRIANGLE_VERT_COUNT = 3;
 
   std::vector<tinygltf::Mesh> meshes = model.meshes;
   std::vector<tinygltf::Buffer> buffers = model.buffers;
@@ -138,11 +142,10 @@ std::shared_ptr<gm::Mesh> gm::Scene::load_mesh(tinygltf::Node node,
 
     // Extract face indices
     size_t facesBufferOffset = facesBufferView.byteOffset;
-    size_t facesBufferLength = facesBufferView.byteLength;
 
     static const size_t faceCount =
         facesAccessor.count /
-        3;  // gltf only supports triangles. No quads or ngons
+        TRIANGLE_VERT_COUNT;  // gltf only supports triangles. No quads or ngons
 
     std::vector<Vector3i> primitiveFaces(faceCount);
 
@@ -152,9 +155,10 @@ std::shared_ptr<gm::Mesh> gm::Scene::load_mesh(tinygltf::Node node,
       unsigned short *facesBytes = reinterpret_cast<unsigned short *>(
           facesBuffer.data.data() + facesBufferOffset);
       for (size_t f = 0; f < faceCount; ++f) {
-        primitiveFaces[f] = Vector3i(facesBytes[f * 3] + primitiveOffset,
-                                     facesBytes[f * 3 + 1] + primitiveOffset,
-                                     facesBytes[f * 3 + 2] + primitiveOffset);
+        primitiveFaces[f] =
+            Vector3i(facesBytes[f * TRIANGLE_VERT_COUNT] + primitiveOffset,
+                     facesBytes[f * TRIANGLE_VERT_COUNT + 1] + primitiveOffset,
+                     facesBytes[f * TRIANGLE_VERT_COUNT + 2] + primitiveOffset);
       }
 
     } else if (facesAccessor.componentType ==
@@ -162,9 +166,10 @@ std::shared_ptr<gm::Mesh> gm::Scene::load_mesh(tinygltf::Node node,
       unsigned int *facesBytes = reinterpret_cast<unsigned int *>(
           facesBuffer.data.data() + facesBufferOffset);
       for (size_t f = 0; f < faceCount; ++f) {
-        primitiveFaces[f] = Vector3i(facesBytes[f * 3] + primitiveOffset,
-                                     facesBytes[f * 3 + 1] + primitiveOffset,
-                                     facesBytes[f * 3 + 2] + primitiveOffset);
+        primitiveFaces[f] =
+            Vector3i(facesBytes[f * TRIANGLE_VERT_COUNT] + primitiveOffset,
+                     facesBytes[f * TRIANGLE_VERT_COUNT + 1] + primitiveOffset,
+                     facesBytes[f * TRIANGLE_VERT_COUNT + 2] + primitiveOffset);
       }
     }
 
@@ -181,8 +186,8 @@ std::shared_ptr<gm::Mesh> gm::Scene::load_mesh(tinygltf::Node node,
                                         location, rotation, scale));
 }
 
-std::shared_ptr<gm::SceneObject> gm::Scene::load_empty(tinygltf::Node node,
-                                                       tinygltf::Model model) {
+std::shared_ptr<gm::SceneObject> gm::Scene::load_empty(
+    const tinygltf::Node &node, const tinygltf::Model &model) {
   Vector3f location;
   Quaternionf rotation;
   Vector3f scale;
@@ -193,7 +198,7 @@ std::shared_ptr<gm::SceneObject> gm::Scene::load_empty(tinygltf::Node node,
 }
 
 std::shared_ptr<gm::PerspectiveCamera> gm::Scene::load_camera(
-    tinygltf::Node node, tinygltf::Model model) {
+    const tinygltf::Node &node, const tinygltf::Model &model) {
   Vector3f location;
   Quaternionf rotation;
   Vector3f scale;
@@ -211,7 +216,7 @@ std::shared_ptr<gm::PerspectiveCamera> gm::Scene::load_camera(
       new PerspectiveCamera(location, rotation, fov, node.name));
 }
 
-void gm::Scene::load_transform(tinygltf::Node node, Vector3f &location,
+void gm::Scene::load_transform(const tinygltf::Node &node, Vector3f &location,
                                Quaternionf &rotation, Vector3f &scale) {
   if (node.translation.size() == 3) {
     location =
