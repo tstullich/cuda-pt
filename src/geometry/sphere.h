@@ -54,10 +54,8 @@ class Sphere : public Shape {
     return true;
   }
 
-  float area() const override {
-    // TODO Figure out formula for surface area of an implicit sphere
-    return 0.0f;
-  }
+  // Returns the surface area of the sphere defined by the radius
+  float area() const override { return 4.0f * M_PI * radius * radius; }
 
  private:
   /// Function to solve the quadratic equation. Solving this equation is fairly
