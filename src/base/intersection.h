@@ -7,7 +7,7 @@
 /// A utility struct that holds intersection information.
 namespace gm {
 struct Intersection {
-  Intersection() : surfacePoint(Vector3f(-1.0f)), tHit(INFINITY) {}
+  Intersection() : surfacePoint(Vector3f(0.0f)), tHit(INFINITY) {}
 
   Intersection(const Vector3f &surfacePoint, float tHit)
       : surfacePoint(surfacePoint), tHit(tHit) {}
