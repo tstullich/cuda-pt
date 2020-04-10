@@ -7,6 +7,9 @@
 
 #include "camera.h"
 #include "image.h"
+#include "intersection.h"
+#include "sphere.h"
+#include "triangle.h"
 
 namespace gm {
 // The Integrator takes care of the task of evaluating the Light Transport
@@ -17,8 +20,6 @@ class Integrator {
   Integrator();
 
   void pathtrace();
-
-  void integrate();
 
  private:
   const static uint8_t BLOCK_SIZE = 8;

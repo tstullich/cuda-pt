@@ -2,21 +2,10 @@
 
 gm::Integrator::Integrator() {
   image = std::unique_ptr<RGBImage>(new RGBImage(IMAGE_WIDTH, IMAGE_HEIGHT));
+  // Place the camera at (0, 0, 1) looking in the -z direction
   camera = std::shared_ptr<PerspectiveCamera>(new PerspectiveCamera(
       Vector3f(0.0f, 0.0f, 1.0f), Vector3f(0.0f, 0.0f, 0.0f),
       Vector3f(0.0f, 1.0f, 0.0f), IMAGE_WIDTH, IMAGE_HEIGHT, 70.0f));
-}
-
-// The entry point for the path tracing kernel. This should be called from
-// the integrate function only
-__global__ void pathtraceGPU(uint8_t *image, size_t width, size_t channels) {
-  size_t row = blockIdx.y * blockDim.y + threadIdx.y;
-  size_t col = blockIdx.x * blockDim.x + threadIdx.x;
-  size_t pixelIdx = (row * width + col) * channels;
-
-  image[pixelIdx] = 255;
-  image[pixelIdx + 1] = 0;
-  image[pixelIdx + 2] = 0;
 }
 
 /// Only a test function. Should be replaced later on
@@ -24,12 +13,21 @@ void gm::Integrator::pathtrace() {
   uint8_t *imageBuffer = image->getBuffer();
   size_t imageWidth = image->getWidth();
   size_t imageHeight = image->getHeight();
+
+  // Add a triangle going centered around (0, 0, -1)
+  Triangle triangle(Vector3f(-0.5f, -0.5f, 0.0f), Vector3f(0.5f, -0.5f, 0.0f),
+                    Vector3f(0.0f, 0.5f, 0.0f));
   for (uint32_t yCoord = 0; yCoord < imageHeight; ++yCoord) {
     for (uint32_t xCoord = 0; xCoord < imageWidth; ++xCoord) {
-      Ray r = camera->generate_ray(xCoord, yCoord);
-      float t = (r.direction.y + 1.0f) * 0.5f;
-      Vector3f hitColor =
-          Vector3f(1.0f) * (1.0f - t) + Vector3f(0.5f, 0.7f, 1.0f) * t;
+      Ray ray = camera->generate_ray(xCoord, yCoord);
+
+      Vector3f hitColor(0.0f);
+      std::unique_ptr<Intersection> intersection =
+          std::make_unique<Intersection>();
+      if (triangle.intersect(ray, intersection)) {
+        // If we intersect the triangle set the hit color to red
+        hitColor = Vector3f(1.0f, 0.0f, 0.0f);
+      }
 
       size_t pixelIdx = (yCoord * imageWidth + xCoord) * image->getChannels();
       imageBuffer[pixelIdx] = static_cast<uint8_t>(hitColor.x * 255.99);
@@ -40,34 +38,49 @@ void gm::Integrator::pathtrace() {
   image->writePNG("test.png");
 }
 
-void gm::Integrator::integrate() {
-  // Allocate GPU memory for the image
-  const size_t bufferSize = image->getSize();
+// The code below will be used at a later time
 
-  // Create a custom deleter since GPU memory needs to be freed after use
-  auto gpuDeleter = [&](uint8_t *ptr) { cudaFree(ptr); };
-  std::shared_ptr<uint8_t> gpuImage(new uint8_t[bufferSize], gpuDeleter);
-  cudaMalloc((void **)&gpuImage, bufferSize);
+// void gm::Integrator::integrate() {
+//  // Allocate GPU memory for the image
+//  const size_t bufferSize = image->getSize();
+//
+//  // Create a custom deleter since GPU memory needs to be freed after use
+//  auto gpuDeleter = [&](uint8_t *ptr) { cudaFree(ptr); };
+//  std::shared_ptr<uint8_t> gpuImage(new uint8_t[bufferSize], gpuDeleter);
+//  cudaMalloc((void **)&gpuImage, bufferSize);
+//
+//  // Determine the grid and block dimensions. We need to allocate a grid of
+//  // blocks containing a thread per pixel. Initially the blocks will be 8x8 =
+//  64
+//  // threads large
+//  dim3 blockDimensions(BLOCK_SIZE, BLOCK_SIZE);
+//  dim3 gridDimensions((image->getWidth() / blockDimensions.x) + 1,
+//                      (image->getHeight() / blockDimensions.y) + 1);
+//
+//  // Launch the path tracing kernel. This is the main entry point for
+//  // gamma's logic
+//  pathtraceGPU<<<gridDimensions, blockDimensions>>>(
+//      gpuImage.get(), image->getWidth(), image->getChannels());
+//
+//  // Sync all of the threads before continuing
+//  cudaDeviceSynchronize();
+//
+//  // Copy result into CPU/host memory to write to a file
+//  cudaMemcpy(image->getBuffer(), gpuImage.get(), bufferSize,
+//             cudaMemcpyDeviceToHost);
+//
+//  // Write image to disk
+//  image->writePNG("test.png");
+//}
 
-  // Determine the grid and block dimensions. We need to allocate a grid of
-  // blocks containing a thread per pixel. Initially the blocks will be 8x8 = 64
-  // threads large
-  dim3 blockDimensions(BLOCK_SIZE, BLOCK_SIZE);
-  dim3 gridDimensions((image->getWidth() / blockDimensions.x) + 1,
-                      (image->getHeight() / blockDimensions.y) + 1);
-
-  // Launch the path tracing kernel. This is the main entry point for
-  // gamma's logic
-  pathtraceGPU<<<gridDimensions, blockDimensions>>>(
-      gpuImage.get(), image->getWidth(), image->getChannels());
-
-  // Sync all of the threads before continuing
-  cudaDeviceSynchronize();
-
-  // Copy result into CPU/host memory to write to a file
-  cudaMemcpy(image->getBuffer(), gpuImage.get(), bufferSize,
-             cudaMemcpyDeviceToHost);
-
-  // Write image to disk
-  image->writePNG("test.png");
-}
+// The entry point for the path tracing kernel. This should be called from
+// the integrate function only
+//__global__ void pathtraceGPU(uint8_t *image, size_t width, size_t channels) {
+//  size_t row = blockIdx.y * blockDim.y + threadIdx.y;
+//  size_t col = blockIdx.x * blockDim.x + threadIdx.x;
+//  size_t pixelIdx = (row * width + col) * channels;
+//
+//  image[pixelIdx] = 255;
+//  image[pixelIdx + 1] = 0;
+//  image[pixelIdx + 2] = 0;
+//}
