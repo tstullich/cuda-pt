@@ -7,6 +7,7 @@
 
 #include "matrix.h"
 #include "ray.h"
+#include "vector.h"
 
 namespace gm {
 
@@ -22,8 +23,9 @@ class PerspectiveCamera {
                     const Vector3f &up, size_t imageWidth, size_t imageHeight,
                     float fov);
 
-  // Compute a new camera ray for the given raster space coordinate
-  Ray generate_ray(uint32_t xPos, uint32_t yPos);
+  /// Compute a new camera ray for the given raster space coordinate. Also
+  /// requires a sample to generate sampled coordinates
+  Ray generate_ray(uint32_t xPos, uint32_t yPos, const Vector2f &sample);
 
  private:
   void setCameraToWorld(const Vector3f &position, const Vector3f &lookAt,

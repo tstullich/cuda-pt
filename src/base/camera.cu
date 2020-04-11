@@ -13,17 +13,21 @@ gm::PerspectiveCamera::PerspectiveCamera(const Vector3f &position,
   setCameraToWorld(position, lookAt, up);
 }
 
-gm::Ray gm::PerspectiveCamera::generate_ray(uint32_t xCoord, uint32_t yCoord) {
+gm::Ray gm::PerspectiveCamera::generate_ray(uint32_t xCoord, uint32_t yCoord,
+                                            const Vector2f &sample) {
   Vector3f origin;
   // Transform origin point using the camera-to-world matrix
   origin = cameraToWorld.multiplyPoint(origin);
 
   // Create a projection point on the image plane using normalized device
-  // coordinates.
-  float x = (2.0f * (xCoord + 0.5f) / static_cast<float>(imageWidth) - 1.0f) *
-            aspectRatio * scale;
-  float y =
-      (1.0f - 2.0f * (yCoord + 0.5f) / static_cast<float>(imageHeight)) * scale;
+  // coordinates. Move the initial point from the center using two samples
+  float x =
+      (2.0f * (xCoord + sample.x + 0.5f) / static_cast<float>(imageWidth) -
+       1.0f) *
+      aspectRatio * scale;
+  float y = (1.0f - 2.0f * (yCoord + sample.y + 0.5f) /
+                        static_cast<float>(imageHeight)) *
+            scale;
 
   // Position vector at the image plane looking in the negative z direction
   Vector3f direction(x, y, -1.0f);
