@@ -11,7 +11,7 @@ namespace gm {
 
 struct pcg32_state {
   uint64_t state;  // RNG state for the sampler
-  uint64_t inc;    // Controls the selected RNG sequence (stream). Must be odd !
+  uint64_t inc;    // Controls the selected RNG sequence (stream). Must be odd!
 };
 
 /// This class implements a sampler based on Permutable Congruential Generators.

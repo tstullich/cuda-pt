@@ -26,12 +26,10 @@ class Sampler {
   /// artifacts due to the fact that the same sequences are being reused.
   virtual std::unique_ptr<Sampler> clone(int seed) = 0;
 
-  /// Generate a 1-dimensional sample given the current sample. The index
-  /// should correspond to the sample-per-pixel
+  /// Generates a 1-dimensional sample.
   virtual float get1D() = 0;
 
-  /// Generate a 1-dimensional sample given the current sample. The index
-  /// should correspond to the sample-per-pixel
+  /// Generate a 2-dimensional sample
   virtual Vector2f get2D() = 0;
 
   /// Convenience method to test camera sampling logic. In the beginning we only
