@@ -16,8 +16,11 @@ void gm::Integrator::pathtrace() {
   uint32_t samplesPerPixel = 4; // Can be configured later
 
   // Add a triangle going centered around (0, 0, -1)
-  Triangle triangle(Vector3f(-0.5f, -0.5f, 0.0f), Vector3f(0.5f, -0.5f, 0.0f),
-                    Vector3f(0.0f, 0.5f, 0.0f));
+  // Triangle triangle(Vector3f(-0.5f, -0.5f, 0.0f), Vector3f(0.5f, -0.5f,
+  // 0.0f),
+  //                  Vector3f(0.0f, 0.5f, 0.0f));
+
+  Sphere sphere(Vector3f(0.0f, 0.0f, -1.0f), 1.0f);
 
   for (uint32_t yCoord = 0; yCoord < imageHeight; ++yCoord) {
     for (uint32_t xCoord = 0; xCoord < imageWidth; ++xCoord) {
@@ -42,9 +45,11 @@ void gm::Integrator::pathtrace() {
         // Calculate an intersection with the scene
         std::unique_ptr<Intersection> intersection =
             std::make_unique<Intersection>();
-        if (triangle.intersect(ray, intersection)) {
+        if (sphere.intersect(ray, intersection)) {
           // If we intersect the triangle set the hit color to red
-          pixelColor += Vector3f(1.0f, 0.0f, 0.0f);
+          auto N = sphere.normal(intersection->surfacePoint);
+          pixelColor +=
+              (N + 1.0f) * 0.5f; // Adjust the normal vector before shading
         }
 
         // Advance the sampler state for the next sample

@@ -291,6 +291,12 @@ Vector3<T> normalize(const Vector3<T> &v) {
   return v / v.length();
 }
 
+/// Reflects the vector incidence over the surface normal
+template <typename T>
+Vector3<T> reflect(const Vector3<T> &incidence, const Vector3<T> &normal) {
+  return Vector3<T>(incidence - 2.0f * normal * dot(normal, incidence));
+}
+
 // Convenience typedefs. These should be used whenever possible
 typedef Vector2<float> Vector2f;
 typedef Vector2<int> Vector2i;

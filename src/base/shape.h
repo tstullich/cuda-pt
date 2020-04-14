@@ -4,6 +4,7 @@
 
 #include "intersection.h"
 #include "ray.h"
+#include "vector.h"
 
 /// Generic interface which needs to be implemented for all primitives
 /// which need to be part of intersection testing.
@@ -23,5 +24,8 @@ class Shape {
   /// Returns the probality distribution function. Important for multiple
   /// importance sampling later.
   virtual float pdf() const { return 1.0f / area(); }
+
+  // Return the surface normal of the shape given the point on the surface
+  virtual Vector3f normal(const Vector3f &surfacePoint) const = 0;
 };
 }  // namespace gm

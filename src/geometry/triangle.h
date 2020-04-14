@@ -49,19 +49,26 @@ class Triangle : public Shape {
     // At this stage we can compute t to find out where the intersection point
     // is on the line.
     float t = f * dot(edge2, q);
-    if (t > EPSILON) {
-      intersection->surfacePoint = ray.origin + ray.direction * t;
-      intersection->tHit = t;
-      return true;
-    } else  // This means that there is a line intersection but not a ray
-            // intersection.
+    if (t < EPSILON) {
+      // This means that there is a line intersection but not a ray
+      // intersection.
       return false;
+    }
+
+    // Update intersection info and return
+    intersection->surfacePoint = ray.origin + ray.direction * t;
+    intersection->tHit = t;
+    return true;
   }
 
   /// Returns the surface area of the shape. This will be useful later when
   /// sampling area lights.
   float area() const override {
     return 0.5f * cross(v1 - v0, v2 - v0).length();
+  }
+
+  Vector3f normal(const Vector3f &surfacePoint) const override {
+    return Vector3f(0.0f);
   }
 
  private:

@@ -57,6 +57,10 @@ class Sphere : public Shape {
   // Returns the surface area of the sphere defined by the radius
   float area() const override { return 4.0f * M_PI * radius * radius; }
 
+  Vector3f normal(const Vector3f &surfacePoint) const override {
+    return normalize(surfacePoint - center);
+  }
+
  private:
   /// Function to solve the quadratic equation. Solving this equation is fairly
   /// costly since it involves using a square root and divide, but certain
