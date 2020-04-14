@@ -45,13 +45,6 @@ class Quaternion {
   }
 
   Quaternion<T> operator*(const Quaternion<T> &q) {
-    /* T t0 = w * q.z - x * q.y + y * q.x + z * q.w;
-     T t1 = w * q.w - x * q.x - y * q.y - z * q.z;
-     T t2 = w * q.x + x * q.w - y * q.z + z * q.y;
-     T t3 = w * q.y + x * q.z + y * q.w - z * q.x;
-
-     return Quaternion<T>(t0, t1, t2, t3);*/
-
     T t0 = w * q.x + x * q.w + y * q.z - z * q.y;
     T t1 = w * q.y + y * q.w + z * q.x - x * q.z;
     T t2 = w * q.z + z * q.w + x * q.y - y * q.x;

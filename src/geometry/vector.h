@@ -3,6 +3,8 @@
 #include <cuda.h>
 #include <cuda_runtime.h>
 
+#include <ostream>
+
 #include "math.h"  // For built-in CUDA functions
 
 /// There are two common vector classes contained within this file.

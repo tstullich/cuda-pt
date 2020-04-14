@@ -21,9 +21,11 @@ class Scene {
  private:
   std::shared_ptr<PerspectiveCamera> loadCamera(
       const std::vector<int> &node_ids, const tinygltf::Model &model);
+
   std::shared_ptr<MeshObject> loadMeshObject(
       const tinygltf::Node &node, const tinygltf::Model &model,
       std::unordered_map<int, std::shared_ptr<Mesh>> &meshes);
+
   std::shared_ptr<Mesh> loadMesh(const tinygltf::Mesh &mesh,
                                  const tinygltf::Model &model);
 

@@ -38,10 +38,6 @@ class PerspectiveCamera : public SceneObject {
     aspectRatio = static_cast<float>(imageWidth) / imageHeight;
   }
 
-  virtual bool isMesh() { return false; }
-  virtual bool isCamera() { return true; }
-  virtual bool isEmpty() { return false; }
-
  private:
   void setCameraToWorld(const Vector3f &position, const Vector3f &lookAt,
                         const Vector3f &up);
