@@ -8,6 +8,7 @@
 #include "camera.h"
 #include "image.h"
 #include "intersection.h"
+#include "pcg_sampler.h"
 #include "sphere.h"
 #include "triangle.h"
 
