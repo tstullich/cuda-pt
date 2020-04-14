@@ -8,6 +8,7 @@
 #include "matrix.h"
 #include "ray.h"
 #include "scene_object.h"
+#include "vector.h"
 
 namespace gm {
 
@@ -28,8 +29,9 @@ class PerspectiveCamera : public SceneObject {
   PerspectiveCamera(const Vector3f &location, const Quaternionf &rotation,
                     const float &fov, const std::string &name);
 
-  // Compute a new camera ray for the given raster space coordinate
-  Ray generate_ray(uint32_t xPos, uint32_t yPos);
+  /// Compute a new camera ray for the given raster space coordinate. Also
+  /// requires a sample to generate sampled coordinates
+  Ray generate_ray(uint32_t xPos, uint32_t yPos, const Vector2f &sample);
 
   // Allow setting the image dimensions
   void setImageSize(const size_t &width, const size_t &height) {
