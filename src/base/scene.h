@@ -1,10 +1,12 @@
 #pragma once
 
 #include <memory>
+#include <unordered_map>
 
 #include "camera.h"
 #include "mesh.h"
-#include "object.h"
+#include "mesh_object.h"
+#include "scene_object.h"
 #include "tiny_gltf.h"
 
 namespace gm {
@@ -12,23 +14,24 @@ class Scene {
  public:
   Scene(){};
   Scene(const std::string &filepath);
-  void addObject(const std::shared_ptr<SceneObject> &o);
   std::shared_ptr<PerspectiveCamera> getCamera();
-  std::vector<std::shared_ptr<SceneObject>> objects;
+  std::vector<std::shared_ptr<MeshObject>> meshObjects;
+  std::shared_ptr<PerspectiveCamera> camera;
 
  private:
-  std::shared_ptr<PerspectiveCamera> load_camera(const tinygltf::Node &node,
-                                                 const tinygltf::Model &model);
-  std::shared_ptr<Mesh> load_mesh(const tinygltf::Node &node,
-                                  const tinygltf::Model &model);
-  std::shared_ptr<SceneObject> load_empty(const tinygltf::Node &node,
-                                          const tinygltf::Model &model);
+  std::shared_ptr<PerspectiveCamera> loadCamera(
+      const std::vector<int> &node_ids, const tinygltf::Model &model);
+  std::shared_ptr<MeshObject> loadMeshObject(
+      const tinygltf::Node &node, const tinygltf::Model &model,
+      std::unordered_map<int, std::shared_ptr<Mesh>> &meshes);
+  std::shared_ptr<Mesh> loadMesh(const tinygltf::Mesh &mesh,
+                                 const tinygltf::Model &model);
 
-  std::vector<std::shared_ptr<SceneObject>> load_objects(
+  std::vector<std::shared_ptr<MeshObject>> loadMeshObjects(
       const std::vector<int> &node_ids, const tinygltf::Model &model,
-      const std::shared_ptr<SceneObject> &parent);
+      const std::shared_ptr<MeshObject> &parent);
 
-  void load_transform(const tinygltf::Node &node, Vector3f &location,
-                      Quaternionf &rotation, Vector3f &scale);
+  void loadTransform(const tinygltf::Node &node, Vector3f &location,
+                     Quaternionf &rotation, Vector3f &scale);
 };
 }  // namespace gm

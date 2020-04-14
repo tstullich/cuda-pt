@@ -6,8 +6,8 @@
 #include <iostream>
 
 #include "matrix.h"
-#include "object.h"
 #include "ray.h"
+#include "scene_object.h"
 
 namespace gm {
 
