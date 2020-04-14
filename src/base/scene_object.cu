@@ -1,4 +1,4 @@
-#include "object.h"
+#include "scene_object.h"
 #include "vector.h"
 
 gm::SceneObject::SceneObject(const Vector3f &location,

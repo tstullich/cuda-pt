@@ -20,10 +20,5 @@ class SceneObject {
   Vector3f location;
   Quaternionf rotation;
   Vector3f scale;
-  std::shared_ptr<SceneObject> parent;
-  std::vector<std::shared_ptr<SceneObject>> children;
-  virtual bool isMesh() { return false; }
-  virtual bool isCamera() { return false; }
-  virtual bool isEmpty() { return true; }
 };
 }  // namespace gm
