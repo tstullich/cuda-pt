@@ -2,6 +2,7 @@
 set(SOURCE_FILES
     base/camera.cu
     base/image.cu
+    base/scene.cu
     integrator/integrator.cu
     samplers/pcg_sampler.cu
 )
@@ -18,7 +19,6 @@ target_include_directories(gamma_lib PUBLIC ${CMAKE_CURRENT_LIST_DIR}/base)
 target_include_directories(gamma_lib PUBLIC ${CMAKE_CURRENT_LIST_DIR}/geometry)
 target_include_directories(gamma_lib PUBLIC ${CMAKE_CURRENT_LIST_DIR}/integrator)
 target_include_directories(gamma_lib PUBLIC ${CMAKE_CURRENT_LIST_DIR}/samplers)
-target_include_directories(gamma_lib PUBLIC ${GLM_INCLUDE_DIR}/glm)
 
 # Executable configurations
 add_executable(gamma main.cpp)

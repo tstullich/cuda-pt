@@ -13,6 +13,29 @@ gm::PerspectiveCamera::PerspectiveCamera(const Vector3f &position,
   setCameraToWorld(position, lookAt, up);
 }
 
+gm::PerspectiveCamera::PerspectiveCamera(const Vector3f &location,
+                                         const Quaternionf &rotation,
+                                         const float &fov,
+                                         const std::string &name)
+    : SceneObject(location, rotation, Vector3f(1), name) {
+  scale = tan((fov * 0.5f) * M_PI / 180.0f);
+  auto rotationMatrix = rotation.toMat4();
+
+  cameraToWorld[0][0] = rotationMatrix[0][0];
+  cameraToWorld[0][1] = rotationMatrix[0][1];
+  cameraToWorld[0][2] = rotationMatrix[0][2];
+  cameraToWorld[1][0] = rotationMatrix[1][0];
+  cameraToWorld[1][1] = rotationMatrix[1][1];
+  cameraToWorld[1][2] = rotationMatrix[1][2];
+  cameraToWorld[2][0] = rotationMatrix[2][0];
+  cameraToWorld[2][1] = rotationMatrix[2][1];
+  cameraToWorld[2][2] = rotationMatrix[2][2];
+  cameraToWorld[3][0] = location.x;
+  cameraToWorld[3][1] = location.y;
+  cameraToWorld[3][2] = location.z;
+  cameraToWorld[3][3] = 1.0f;
+}
+
 gm::Ray gm::PerspectiveCamera::generate_ray(uint32_t xCoord, uint32_t yCoord,
                                             const Vector2f &sample) {
   Vector3f origin;

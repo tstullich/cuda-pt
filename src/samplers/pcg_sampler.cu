@@ -1,6 +1,6 @@
 #include "pcg_sampler.h"
 
-gm::PCGSampler::PCGSampler(const Vector2i &pixel, int64_t samplesPerPixel)
+gm::PCGSampler::PCGSampler(const Vector2i &pixel, uint32_t samplesPerPixel)
     : Sampler(samplesPerPixel) {
   rng_states = std::vector<pcg32_state>(samplesPerPixel);
   uint64_t seed = pixel.x + pixel.y;

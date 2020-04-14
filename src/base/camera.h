@@ -7,6 +7,7 @@
 
 #include "matrix.h"
 #include "ray.h"
+#include "scene_object.h"
 #include "vector.h"
 
 namespace gm {
@@ -15,7 +16,7 @@ namespace gm {
 /// When generating primary camera rays the convention is to form rays
 /// at the image plane and then transform them using the cameraToWorld
 /// matrix provided in this class.
-class PerspectiveCamera {
+class PerspectiveCamera : public SceneObject {
  public:
   PerspectiveCamera(){};
 
@@ -23,9 +24,21 @@ class PerspectiveCamera {
                     const Vector3f &up, size_t imageWidth, size_t imageHeight,
                     float fov);
 
+  // This constructor is based on the information that is included in a glTF
+  // file.
+  PerspectiveCamera(const Vector3f &location, const Quaternionf &rotation,
+                    const float &fov, const std::string &name);
+
   /// Compute a new camera ray for the given raster space coordinate. Also
   /// requires a sample to generate sampled coordinates
   Ray generate_ray(uint32_t xPos, uint32_t yPos, const Vector2f &sample);
+
+  // Allow setting the image dimensions
+  void setImageSize(const size_t &width, const size_t &height) {
+    imageWidth = width;
+    imageHeight = height;
+    aspectRatio = static_cast<float>(imageWidth) / imageHeight;
+  }
 
  private:
   void setCameraToWorld(const Vector3f &position, const Vector3f &lookAt,

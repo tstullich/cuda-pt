@@ -21,7 +21,7 @@ struct pcg32_state {
 /// The generator is seeded using the pixel coordinate being sampled.
 class PCGSampler : public Sampler {
  public:
-  PCGSampler(const Vector2i &pixel, int64_t samplesPerPixel);
+  PCGSampler(const Vector2i &pixel, uint32_t samplesPerPixel);
 
   std::unique_ptr<Sampler> clone(int seed) override;
 
