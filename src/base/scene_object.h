@@ -13,7 +13,8 @@ class SceneObject {
   SceneObject(const Vector3f &location = Vector3f(),
               const Quaternionf &rotation = Quaternionf(),
               const Vector3f &scale = Vector3f(1.0f, 1.0f, 1.0f),
-              const std::string &name = "");
+              const std::string &name = "")
+      : location(location), rotation(rotation), scale(scale), name(name) {}
 
   Vector3f get_location();
   std::string name;
