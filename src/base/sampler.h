@@ -18,7 +18,7 @@ class Sampler {
   /// Because we anticipate having to generate a large amount of samples
   /// per pixel we store the spp inside a 64-bit integer
   /// TODO This should be user-defined in the future.
-  Sampler(int64_t samplesPerPixel)
+  Sampler(uint32_t samplesPerPixel)
       : samplesPerPixel(samplesPerPixel), currentPixelSampleIndex(0){};
 
   /// We plan on using a single sampler per thread, so we need to be able
@@ -43,10 +43,10 @@ class Sampler {
     return ++currentPixelSampleIndex < samplesPerPixel;
   }
 
-  int64_t samplesPerPixel;
+  uint32_t samplesPerPixel;
 
  protected:
-  int64_t currentPixelSampleIndex;
+  uint32_t currentPixelSampleIndex;
 };
 
 }  // namespace gm
