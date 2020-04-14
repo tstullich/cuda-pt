@@ -3,6 +3,8 @@
 #include <cuda.h>
 #include <cuda_runtime.h>
 
+#include <ostream>
+
 #include "math.h"  // For built-in CUDA functions
 
 /// There are two common vector classes contained within this file.
@@ -177,6 +179,14 @@ class Vector3 {
     return x != v.x || y != v.y || z != v.z;
   }
 
+  Vector3<T> operator*(Vector3<T> v) const {
+    if (v.hasNans()) {
+      // Cannot multiply by Nan
+      // TODO Find a way to handle errors inside device code
+    }
+    return Vector3<T>(v.x * x, v.y * y, v.z * z);
+  }
+
   template <typename U>
   Vector3<T> operator*(U s) const {
     if (isnan(s)) {
@@ -289,6 +299,13 @@ T minComponent(const Vector3<T> &v) {
 template <typename T>
 Vector3<T> normalize(const Vector3<T> &v) {
   return v / v.length();
+}
+
+template <typename T>
+inline std::ostream &operator<<(std::ostream &stream, const Vector3<T> &v) {
+  stream << "Vector3(" << v.x << ", " << v.y << ", " << v.z << ")";
+
+  return stream;
 }
 
 // Convenience typedefs. These should be used whenever possible
