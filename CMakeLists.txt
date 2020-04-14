@@ -15,7 +15,7 @@ set(TINYGLTF_USE_CPP14 ON)
 
 # Include external dependencies
 include_directories(${STB_INCLUDE_DIR})
-include_directories(${TINYGLTF_INCLUDE_DIR})
+include_directories(SYSTEM ${TINYGLTF_INCLUDE_DIR}) # Marking it as SYSTEM supress all warnings from that include
 include_directories(${CMAKE_CUDA_TOOLKIT_INCLUDE_DIRECTORIES})
 
 add_subdirectory(src)
