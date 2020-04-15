@@ -1,23 +1,30 @@
 #include "integrator.h"
 
-gm::Integrator::Integrator() {
+gm::Integrator::Integrator(const std::string &filePath) {
+  // Load our scene
+  scene = std::unique_ptr<Scene>(new Scene(filePath));
+
+  // Initialize the final image
   image = std::unique_ptr<RGBImage>(new RGBImage(IMAGE_WIDTH, IMAGE_HEIGHT));
-  // Place the camera at (0, 0, 1) looking in the -z direction
-  camera = std::shared_ptr<PerspectiveCamera>(new PerspectiveCamera(
-      Vector3f(0.0f, 0.0f, 1.0f), Vector3f(0.0f, 0.0f, 0.0f),
-      Vector3f(0.0f, 1.0f, 0.0f), IMAGE_WIDTH, IMAGE_HEIGHT, 70.0f));
+
+  // Set some camera settings based on the output image
+  scene->camera->setImagePlane(IMAGE_WIDTH, IMAGE_HEIGHT);
 }
 
-/// Only a test function. Should be replaced later on
+bool gm::Integrator::intersectScene(
+    const Ray &ray, std::unique_ptr<Intersection> &intersection) const {
+  // Calculate an intersection with the scene. Here is where we should put the
+  // BVH intersection logic if possible, which returns an Intersection object
+  Sphere sphere(Vector3f(0.0f, 0.0f, -1.0f), 1.0f);
+  return sphere.intersect(ray, intersection);
+}
+
+/// This f
 void gm::Integrator::pathtrace() {
   uint8_t *imageBuffer = image->getBuffer();
   size_t imageWidth = image->getWidth();
   size_t imageHeight = image->getHeight();
   uint32_t samplesPerPixel = 4; // Can be configured later
-
-  // Add a triangle going centered around (0, 0, -1)
-  Triangle triangle(Vector3f(-0.5f, -0.5f, 0.0f), Vector3f(0.5f, -0.5f, 0.0f),
-                    Vector3f(0.0f, 0.5f, 0.0f));
 
   for (uint32_t yCoord = 0; yCoord < imageHeight; ++yCoord) {
     for (uint32_t xCoord = 0; xCoord < imageWidth; ++xCoord) {
@@ -31,21 +38,29 @@ void gm::Integrator::pathtrace() {
         // Get a 2D sample for the camera rays
         Vector2f cameraSample = sampler.get2D();
 
-        if (xCoord == imageWidth / 2 && yCoord == imageHeight / 2) {
-          std::cout << "Sample: " << cameraSample.x << ", " << cameraSample.y
-                    << std::endl;
-        }
+        // Generate primary rays
+        Ray ray = scene->camera->generate_ray(xCoord, yCoord, cameraSample);
 
-        // Sample the primary rays
-        Ray ray = camera->generate_ray(xCoord, yCoord, cameraSample);
-
-        // Calculate an intersection with the scene
+        // Find an intersection point between the rays and the scene
         std::unique_ptr<Intersection> intersection =
             std::make_unique<Intersection>();
-        if (triangle.intersect(ray, intersection)) {
-          // If we intersect the triangle set the hit color to red
-          pixelColor += Vector3f(1.0f, 0.0f, 0.0f);
+        if (!intersectScene(ray, intersection)) {
+          // For now if we do not make any intersections with the scene
+          // simply skip the light contributions for this sample. Later
+          // the rendering loop can exit early here
+          continue;
         }
+
+        // Compute scattering ray based on material BxDFs
+
+        // Sample light sources to find path contribution. Skip for specular
+        // materials
+
+        // Sample BSDF for new path direction
+        pixelColor += (intersection->normal + 1.0f) *
+                      0.5f; // Adjust the normal vector before shading
+
+        // Apply Russian roulette for early termination
 
         // Advance the sampler state for the next sample
         sampler.startNextSample();

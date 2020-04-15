@@ -34,11 +34,7 @@ class PerspectiveCamera : public SceneObject {
   Ray generate_ray(uint32_t xPos, uint32_t yPos, const Vector2f &sample);
 
   // Allow setting the image dimensions
-  void setImageSize(const size_t &width, const size_t &height) {
-    imageWidth = width;
-    imageHeight = height;
-    aspectRatio = static_cast<float>(imageWidth) / imageHeight;
-  }
+  void setImagePlane(const size_t &width, const size_t &height);
 
  private:
   void setCameraToWorld(const Vector3f &position, const Vector3f &lookAt,

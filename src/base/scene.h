@@ -13,9 +13,13 @@ namespace gm {
 class Scene {
  public:
   Scene(){};
+
   Scene(const std::string &filepath);
+
   std::shared_ptr<PerspectiveCamera> getCamera();
+
   std::vector<std::shared_ptr<MeshObject>> meshObjects;
+
   std::shared_ptr<PerspectiveCamera> camera;
 
  private:

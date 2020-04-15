@@ -9,10 +9,11 @@ namespace gm {
 struct Intersection {
   Intersection() : surfacePoint(Vector3f(0.0f)), tHit(INFINITY) {}
 
-  Intersection(const Vector3f &surfacePoint, float tHit)
-      : surfacePoint(surfacePoint), tHit(tHit) {}
+  Intersection(const Vector3f &surfacePoint, const Vector3f &normal, float tHit)
+      : surfacePoint(surfacePoint), normal(normal), tHit(tHit) {}
 
   Vector3f surfacePoint;
+  Vector3f normal;
   float tHit;
 };
 }  // namespace gm

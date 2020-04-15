@@ -91,3 +91,10 @@ void gm::PerspectiveCamera::setCameraToWorld(const Vector3f &position,
   cameraToWorld[3][2] = position.z;
   cameraToWorld[3][3] = 1.0f;
 }
+
+void gm::PerspectiveCamera::setImagePlane(const size_t &width,
+                                          const size_t &height) {
+  imageWidth = width;
+  imageHeight = height;
+  aspectRatio = static_cast<float>(imageWidth) / imageHeight;
+}

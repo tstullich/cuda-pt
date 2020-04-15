@@ -51,6 +51,8 @@ class Sphere : public Shape {
     // accordingly
     intersection->surfacePoint = ray.origin + ray.direction * t0;
     intersection->tHit = t0;
+    intersection->normal =
+        normal(intersection->surfacePoint);  // TODO Remove this later
     return true;
   }
 
