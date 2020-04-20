@@ -1,5 +1,6 @@
 # It's only necessary to list the source files here
 set(SOURCE_FILES
+    base/bvh_dummy.cu
     base/camera.cu
     base/image.cu
     base/scene.cu

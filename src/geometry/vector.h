@@ -243,7 +243,10 @@ class Vector3 {
     if (i == 1) {
       return y;
     }
-    return z;
+    if (i == 2) {
+      return z;
+    }
+    return -1;
   }
 
   bool hasNans() const { return isnan(x) || isnan(y) || isnan(z); }

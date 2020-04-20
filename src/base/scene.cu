@@ -1,7 +1,6 @@
 #include <stack>
 
 #include "scene.h"
-#include "scene_object.h"
 
 #define TINYGLTF_IMPLEMENTATION
 #define STB_IMAGE_IMPLEMENTATION
@@ -56,9 +55,10 @@ __host__ gm::Scene::Scene(const std::string &filepath) {
   camera = loadCamera(gltfScene.nodes, model);
 }
 
-std::vector<std::shared_ptr<gm::MeshObject>> gm::Scene::loadMeshObjects(
-    const std::vector<int> &node_ids, const tinygltf::Model &model,
-    const std::shared_ptr<MeshObject> &parent) {
+std::vector<std::shared_ptr<gm::MeshObject>>
+gm::Scene::loadMeshObjects(const std::vector<int> &node_ids,
+                           const tinygltf::Model &model,
+                           const std::shared_ptr<MeshObject> &parent) {
   std::vector<std::shared_ptr<MeshObject>> meshObjects;
   std::unordered_map<int, std::shared_ptr<Mesh>> meshes;
 
@@ -71,7 +71,7 @@ std::vector<std::shared_ptr<gm::MeshObject>> gm::Scene::loadMeshObjects(
     tinygltf::Node node = model.nodes[node_ids[i]];
 
     // NOTE this needs to be extended once more object types are added
-    if (node.mesh != -1 || node.camera == -1) {
+    if (node.mesh != -1) {
       current = loadMeshObject(node, model, meshes);
       current->parent = parent;
       current->children = loadMeshObjects(node.children, model, current);
@@ -168,14 +168,14 @@ std::shared_ptr<gm::Mesh> gm::Scene::loadMesh(const tinygltf::Mesh &mesh,
 
     static const size_t faceCount =
         facesAccessor.count /
-        TRIANGLE_VERT_COUNT;  // gltf only supports triangles. No quads or
-                              // ngons
+        TRIANGLE_VERT_COUNT; // gltf only supports triangles. No quads or
+                             // ngons
 
     std::vector<Vector3i> primitiveFaces(faceCount);
 
     // TODO handle byteStride
 
-    if (facesAccessor.componentType == 5123) {  // Component type unsigned short
+    if (facesAccessor.componentType == 5123) { // Component type unsigned short
       unsigned short *facesBytes = reinterpret_cast<unsigned short *>(
           facesBuffer.data.data() + facesBufferOffset);
       for (size_t f = 0; f < faceCount; ++f) {
@@ -186,7 +186,7 @@ std::shared_ptr<gm::Mesh> gm::Scene::loadMesh(const tinygltf::Mesh &mesh,
       }
 
     } else if (facesAccessor.componentType ==
-               5125) {  // Component type unsigned int
+               5125) { // Component type unsigned int
       unsigned int *facesBytes = reinterpret_cast<unsigned int *>(
           facesBuffer.data.data() + facesBufferOffset);
       for (size_t f = 0; f < faceCount; ++f) {
@@ -209,8 +209,9 @@ std::shared_ptr<gm::Mesh> gm::Scene::loadMesh(const tinygltf::Mesh &mesh,
   return std::shared_ptr<Mesh>(new Mesh(positions, normals, faces));
 }
 
-std::shared_ptr<gm::PerspectiveCamera> gm::Scene::loadCamera(
-    const std::vector<int> &node_ids, const tinygltf::Model &model) {
+std::shared_ptr<gm::PerspectiveCamera>
+gm::Scene::loadCamera(const std::vector<int> &node_ids,
+                      const tinygltf::Model &model) {
   // NOTE The following section uses raw pointers to improve performance and
   // prevent unnecessary copies. Smart pointers can not be used here as we are
   // not managing the memory to which we are pointing.

@@ -4,22 +4,16 @@ gm::Integrator::Integrator(const std::string &filePath) {
   // Load our scene
   scene = std::unique_ptr<Scene>(new Scene(filePath));
 
-  // Initialize the final image
-  image = std::unique_ptr<RGBImage>(new RGBImage(IMAGE_WIDTH, IMAGE_HEIGHT));
-
   // Set some camera settings based on the output image
   scene->camera->setImagePlane(IMAGE_WIDTH, IMAGE_HEIGHT);
+
+  // Build BVH
+  bvh = std::unique_ptr<BVHDummy>(new BVHDummy(scene));
+
+  // Initialize the final image
+  image = std::unique_ptr<RGBImage>(new RGBImage(IMAGE_WIDTH, IMAGE_HEIGHT));
 }
 
-bool gm::Integrator::intersectScene(
-    const Ray &ray, std::unique_ptr<Intersection> &intersection) const {
-  // Calculate an intersection with the scene. Here is where we should put the
-  // BVH intersection logic if possible, which returns an Intersection object
-  Sphere sphere(Vector3f(0.0f, 0.0f, -1.0f), 1.0f);
-  return sphere.intersect(ray, intersection);
-}
-
-/// This f
 void gm::Integrator::pathtrace() {
   uint8_t *imageBuffer = image->getBuffer();
   size_t imageWidth = image->getWidth();
@@ -42,9 +36,9 @@ void gm::Integrator::pathtrace() {
         Ray ray = scene->camera->generate_ray(xCoord, yCoord, cameraSample);
 
         // Find an intersection point between the rays and the scene
-        std::unique_ptr<Intersection> intersection =
-            std::make_unique<Intersection>();
-        if (!intersectScene(ray, intersection)) {
+        std::shared_ptr<Intersection> intersection =
+            std::shared_ptr<Intersection>();
+        if (!bvh->intersect(ray, intersection)) {
           // For now if we do not make any intersections with the scene
           // simply skip the light contributions for this sample. Later
           // the rendering loop can exit early here

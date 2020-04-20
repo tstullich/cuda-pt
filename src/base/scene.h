@@ -5,8 +5,6 @@
 
 #include "camera.h"
 #include "mesh.h"
-#include "mesh_object.h"
-#include "scene_object.h"
 #include "tiny_gltf.h"
 
 namespace gm {
@@ -18,7 +16,7 @@ class Scene {
 
   std::shared_ptr<PerspectiveCamera> getCamera();
 
-  std::vector<std::shared_ptr<MeshObject>> meshObjects;
+  std::vector<std::shared_ptr<Mesh>> meshes;
 
   std::shared_ptr<PerspectiveCamera> camera;
 
@@ -26,16 +24,16 @@ class Scene {
   std::shared_ptr<PerspectiveCamera> loadCamera(
       const std::vector<int> &node_ids, const tinygltf::Model &model);
 
-  std::shared_ptr<MeshObject> loadMeshObject(
+  std::shared_ptr<Mesh> loadMeshObject(
       const tinygltf::Node &node, const tinygltf::Model &model,
       std::unordered_map<int, std::shared_ptr<Mesh>> &meshes);
 
   std::shared_ptr<Mesh> loadMesh(const tinygltf::Mesh &mesh,
                                  const tinygltf::Model &model);
 
-  std::vector<std::shared_ptr<MeshObject>> loadMeshObjects(
+  std::vector<std::shared_ptr<Mesh>> loadMeshObjects(
       const std::vector<int> &node_ids, const tinygltf::Model &model,
-      const std::shared_ptr<MeshObject> &parent);
+      const std::shared_ptr<Mesh> &parent);
 
   void loadTransform(const tinygltf::Node &node, Vector3f &location,
                      Quaternionf &rotation, Vector3f &scale);
