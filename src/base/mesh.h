@@ -13,7 +13,7 @@ class Mesh {
  public:
   Mesh(const std::vector<Vector3f> &vertices,
        const std::vector<Vector3f> &normals, const std::vector<Vector3i> &faces,
-       const std::string &name, const Matrix4x4f &meshToWorld)
+       const std::string &name, Matrix4x4f &meshToWorld)
       : vertices(vertices),
         normals(normals),
         faces(faces),

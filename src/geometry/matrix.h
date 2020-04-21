@@ -20,7 +20,7 @@ class Matrix4x4 {
 
   T *operator[](uint8_t i) { return m[i]; }
 
-  Matrix4x4<T> invert() const {
+  Matrix4x4<T> invert() {
     Matrix4x4<T> mat;
     for (size_t column = 0; column < 4; ++column) {
       // Swap row in case our pivot point is not working
@@ -38,8 +38,8 @@ class Matrix4x4 {
         } else {
           // Swap rows
           for (size_t j = 0; j < 4; ++j) {
-            std::swap(m[column][j], m[big][j]);
-            std::swap(mat.m[column][j], mat.m[big][j]);
+            // std::swap(m[column][j], m[big][j]);
+            // std::swap(mat.m[column][j], mat.m[big][j]);
           }
         }
       }
