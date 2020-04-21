@@ -20,54 +20,6 @@ class Matrix4x4 {
 
   T *operator[](uint8_t i) { return m[i]; }
 
-  Matrix4x4<T> invert() {
-    Matrix4x4<T> mat;
-    for (size_t column = 0; column < 4; ++column) {
-      // Swap row in case our pivot point is not working
-      if (m[column][column] == 0) {
-        size_t big = column;
-        for (size_t row = 0; row < 4; ++row) {
-          if (fabs(m[row][column]) > fabs(m[big][column])) {
-            big = row;
-          }
-        }
-        if (big == column) {
-          // Print this is a singular matrix, return identity ?
-          std::cout << "Singular matrix! Returning identity" << std::endl;
-          return Matrix4x4<T>();
-        } else {
-          // Swap rows
-          for (size_t j = 0; j < 4; ++j) {
-            // std::swap(m[column][j], m[big][j]);
-            // std::swap(mat.m[column][j], mat.m[big][j]);
-          }
-        }
-      }
-      // Set each row in the column to 0
-      for (size_t row = 0; row < 4; ++row) {
-        if (row != column) {
-          T coeff = m[row][column] / m[column][column];
-          if (coeff != 0) {
-            for (size_t j = 0; j < 4; ++j) {
-              m[row][j] -= coeff * m[column][j];
-              mat.m[row][j] -= coeff * mat.m[column][j];
-            }
-            // Set the element to 0 for safety
-            m[row][column] = 0;
-          }
-        }
-      }
-    }
-    // Set each element of the diagonal to 1
-    for (size_t row = 0; row < 4; ++row) {
-      for (size_t column = 0; column < 4; ++column) {
-        mat.m[row][column] /= m[row][row];
-      }
-    }
-
-    return mat;
-  }
-
   /// Multiply a point using the inner 3x3 matrix. We implicitly assume that our
   /// points have homogeneous coordinates so we need to normalize the w
   /// component
@@ -91,13 +43,13 @@ class Matrix4x4 {
 
   // Initialize matrix as the identity matrix
   T m[4][4] = {{1, 0, 0, 0}, {0, 1, 0, 0}, {0, 0, 1, 0}, {0, 0, 0, 1}};
-};  // namespace gm
+};
 
 typedef Matrix4x4<float> Matrix4x4f;
 
 /// Functions to build linear transformation matrices
-template <typename T>
-Matrix4x4<T> scale(const Vector3<T> &scale) {
+template<typename T>
+Matrix4x4<T> scaleMatrix(const Vector3<T> &scale) {
   Matrix4x4<T> mat;
   mat[0][0] = scale.x;
   mat[1][1] = scale.y;
@@ -105,12 +57,60 @@ Matrix4x4<T> scale(const Vector3<T> &scale) {
   return mat;
 }
 
-template <typename T>
-Matrix4x4<T> translate(const Vector3<T> &translation) {
+template<typename T>
+Matrix4x4<T> translationMatrix(const Vector3<T> &translation) {
   Matrix4x4<T> mat;
   mat[3][0] = translation.x;
   mat[3][1] = translation.y;
   mat[3][2] = translation.z;
-  return Matrix4x4<T>();
+  return mat;
 }
-}  // namespace gm
+
+template<typename T>
+Matrix4x4<T> invert(Matrix4x4<T> m) {
+  Matrix4x4<T> mat;
+  for (size_t column = 0; column < 4; ++column) {
+    // Swap row in case our pivot point is not working
+    if (m[column][column] == 0) {
+      size_t big = column;
+      for (size_t row = 0; row < 4; ++row) {
+        if (fabs(m[row][column]) > fabs(m[big][column])) {
+          big = row;
+        }
+      }
+      if (big == column) {
+        std::cout << "Singular matrix! Returning identity" << std::endl;
+        return Matrix4x4<T>();
+      } else {
+        // Swap rows
+        for (size_t j = 0; j < 4; ++j) {
+          std::swap(m[column][j], m[big][j]);
+          std::swap(mat.m[column][j], mat.m[big][j]);
+        }
+      }
+    }
+    // Set each row in the column to 0
+    for (size_t row = 0; row < 4; ++row) {
+      if (row != column) {
+        T coeff = m[row][column] / m[column][column];
+        if (coeff != 0) {
+          for (size_t j = 0; j < 4; ++j) {
+            m[row][j] -= coeff * m[column][j];
+            mat.m[row][j] -= coeff * mat.m[column][j];
+          }
+          // Set the element to 0 for safety
+          m[row][column] = 0;
+        }
+      }
+    }
+  }
+  // Set each element of the diagonal to 1
+  for (size_t row = 0; row < 4; ++row) {
+    for (size_t column = 0; column < 4; ++column) {
+      mat.m[row][column] /= m[row][row];
+    }
+  }
+
+  return mat;
+}
+}// namespace gm

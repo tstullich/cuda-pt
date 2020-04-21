@@ -21,8 +21,7 @@ class PerspectiveCamera {
 
   // This constructor is based on the information that is included in a glTF
   // file.
-  PerspectiveCamera(const Vector3f &location, const Quaternionf &rotation,
-                    const float &fov);
+  PerspectiveCamera(const Matrix4x4f &cameraToWorld, const float &fov);
 
   /// Compute a new camera ray for the given raster space coordinate. Also
   /// requires a sample to generate sampled coordinates

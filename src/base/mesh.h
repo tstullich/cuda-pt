@@ -19,17 +19,17 @@ class Mesh {
         faces(faces),
         name(name),
         meshToWorld(meshToWorld),
-        worldToMesh(meshToWorld.invert()) {}
+        worldToMesh(invert(meshToWorld)) {}
 
   std::vector<Vector3f> vertices;
   std::vector<Vector3f> normals;
   std::vector<Vector3i> faces;
 
+  // Name of the mesh from the glTF file
+  std::string name;
+
   // Transformation matrices used for various purposes
   Matrix4x4f meshToWorld;
   Matrix4x4f worldToMesh;
-
-  // Name of the mesh from the glTF file
-  std::string name;
 };
 }  // namespace gm
