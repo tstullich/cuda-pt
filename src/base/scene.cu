@@ -42,15 +42,16 @@ __host__ gm::Scene::Scene(const std::string &filepath) {
 
 gm::Matrix4x4f gm::Scene::buildTransformationMatrix(const Vector3f &translation, const Quaternionf &rotation,
                                                     const Vector3f &scale) {
+  Matrix4x4f I;// Identity matrix
   Matrix4x4f T = translationMatrix(translation);
   Matrix4x4f R = rotation.toMat4();
   Matrix4x4f S = scaleMatrix(scale);
-  return Matrix4x4f();
+  return I * T * R * S;
 }
 
 bool gm::Scene::isCamera(const tinygltf::Node &node, const tinygltf::Model &model, int &cameraId) const {
   if (node.camera != -1) {
-    // Camera node has been found in the parent node
+    // 'camera' attribute has been found in the parent node
     cameraId = node.camera;
     return true;
   }
@@ -73,7 +74,15 @@ bool gm::Scene::isMesh(const tinygltf::Node &node) const {
 void gm::Scene::loadCamera(const tinygltf::Node &cameraNode,
                            const tinygltf::Model &model,
                            const int &cameraId) {
-  tinygltf::Camera cameraData = model.cameras[cameraId];
+  tinygltf::Camera cameraData;
+  if (cameraNode.camera == cameraId) {
+    // The camera is contained in the node itself
+    cameraData = model.cameras[cameraId];
+  } else {
+    // Get the camera data from the child node
+    cameraData = model.cameras[model.nodes[cameraId].camera];
+  }
+
   if (cameraData.type != "perspective") {
     // Only perspective projection cameras are supported
     std::cout << "Only perspective projection cameras are allowed at the moment!" << std::endl;
@@ -87,83 +96,33 @@ void gm::Scene::loadCamera(const tinygltf::Node &cameraNode,
     // The parent node holds the camera attribute. We assume that all information is contained
     // here and that we do not need to recurse into the child nodes to get more transformation
     // information.
-    loadTransform(cameraNode, translation, rotation);
+    loadCameraTransform(cameraNode, translation, rotation);
     transformationMatrix = buildTransformationMatrix(translation, rotation);
   } else {
     // If no camera attribute is found in the parent node we need to build two
     // transformation matrices. The first for the parent and the second from one of the child nodes.
     // The case where more transformations are contained farther down in the scene graph
     // is not supported, but could be expanded on in the future.
-    loadTransform(cameraNode, translation, rotation);
-    transformationMatrix = buildTransformationMatrix(translation, rotation);
+    loadCameraTransform(cameraNode, translation, rotation);
+    Matrix4x4f transformationMatrixParent = buildTransformationMatrix(translation, rotation);
 
     // Here we also load the node that was found through the first pass of the child nodes.
     Vector3f translationChild;
     Quaternionf rotationChild;
-    Matrix4x4f transformationMatrixChild;
     tinygltf::Node childNode = model.nodes[cameraId];
-    loadTransform(childNode, translationChild, rotationChild);
-    transformationMatrixChild = buildTransformationMatrix(translationChild, rotationChild);
+    loadCameraTransform(childNode, translationChild, rotationChild);
+    Matrix4x4f transformationMatrixChild = buildTransformationMatrix(translationChild, rotationChild);
 
-    transformationMatrix = transformationMatrix * transformationMatrixChild;
+    // Apply the transformation matrices
+    transformationMatrix = transformationMatrixParent * transformationMatrixChild;
   }
 
   auto fov = static_cast<float>(cameraData.perspective.yfov);
   camera = std::make_shared<PerspectiveCamera>(PerspectiveCamera(transformationMatrix, fov));
 }
 
-//void gm::Scene::loadMeshes(const std::vector<int> &node_ids,
-//                           const tinygltf::Model &model) {
-// meshes = std::vector<std::shared_ptr<MeshObject>>(node_ids.size());
-// std::unordered_map<int, std::shared_ptr<Mesh>> meshes;
-
-// std::shared_ptr<MeshObject> current;
-// meshObjects.reserve(node_ids.size());
-// if (node_ids.size() > 0) {
-//  std::cout << "Loading " << node_ids.size() << " object(s)" << std::endl;
-//}
-// for (size_t i = 0; i < node_ids.size(); ++i) {
-//  tinygltf::Node node = model.nodes[node_ids[i]];
-
-//  // NOTE this needs to be extended once more object types are added
-//  if (node.mesh != -1) {
-//    current = loadMeshObject(node, model, meshes);
-//    // current->children = loadMeshObjects(node.children, model, current);
-//    meshObjects.push_back(current);
-//  }
-//}
-//// Not all nodes are mesh objects thus the preallocated vector might be
-/// larger / than necessary
-// meshObjects.shrink_to_fit();
-// return meshObjects;
-}
-
-// std::shared_ptr<gm::Mesh> gm::Scene::loadMeshObject(
-//    const tinygltf::Node &node, const tinygltf::Model &model,
-//    std::unordered_map<int, std::shared_ptr<Mesh>> &meshes) {
-//  Vector3f location;
-//  Quaternionf rotation;
-//  Vector3f scale;
-//  loadTransform(node, location, rotation, scale);
-//
-//  // This object is an empty
-//  if (node.mesh == -1) {
-//    return std::shared_ptr<MeshObject>(
-//        new MeshObject(nullptr, node.name, location, rotation, scale));
-//  }
-//
-//  auto it = meshes.find(node.mesh);
-//  std::shared_ptr<Mesh> mesh;
-//  if (it == meshes.end()) {
-//    mesh = loadMesh(model.meshes[node.mesh], model);
-//    meshes.insert({node.mesh, mesh});
-//  }
-//  return std::shared_ptr<MeshObject>(
-//      new MeshObject(mesh, node.name, location, rotation, scale));
-//}
-
-std::shared_ptr<gm::Mesh> gm::Scene::loadMesh(const tinygltf::Node &meshNode,
-                                              const tinygltf::Model &model) {
+void gm::Scene::loadMesh(const tinygltf::Node &meshNode,
+                         const tinygltf::Model &model) {
   tinygltf::Mesh mesh = model.meshes[meshNode.mesh];
   std::vector<tinygltf::Buffer> buffers = model.buffers;
   std::vector<tinygltf::Accessor> accessors = model.accessors;
