@@ -23,8 +23,6 @@ class PCGSampler : public Sampler {
  public:
   PCGSampler(const Vector2i &pixel, uint32_t samplesPerPixel);
 
-  std::unique_ptr<Sampler> clone(int seed) override;
-
   float get1D() override;
 
   Vector2f get2D() override;

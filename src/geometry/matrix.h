@@ -2,6 +2,7 @@
 
 #include <cstring>
 #include <iostream>
+#include <vector>
 
 #include "vector.h"
 
@@ -15,6 +16,18 @@ template <typename T>
 class Matrix4x4 {
  public:
   Matrix4x4() {}
+
+  /// Initialize a Matrix using a vector with 16 entries. This is useful
+  /// for loading matrices from glTF scene descriptions. Vector is assumed
+  /// to store its entries in row-major form
+  Matrix4x4(const std::vector<double> &matrix) {
+    for (size_t row = 0; row < 4; ++row) {
+      for (size_t col = 0; col < 4; ++col) {
+        size_t idx = (row * 4) + col;
+        m[row][col] = static_cast<float>(matrix[idx]);
+      }
+    }
+  }
 
   const T *operator[](uint8_t i) const { return m[i]; }
 

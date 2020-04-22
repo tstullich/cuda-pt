@@ -21,11 +21,6 @@ class Sampler {
   Sampler(uint32_t samplesPerPixel)
       : samplesPerPixel(samplesPerPixel), currentPixelSampleIndex(0){};
 
-  /// We plan on using a single sampler per thread, so we need to be able
-  /// to clone samplers for each worker, otherwise we can run into noise
-  /// artifacts due to the fact that the same sequences are being reused.
-  virtual std::unique_ptr<Sampler> clone(int seed) = 0;
-
   /// Generates a 1-dimensional sample.
   virtual float get1D() = 0;
 

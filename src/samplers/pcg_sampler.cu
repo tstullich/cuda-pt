@@ -15,11 +15,6 @@ gm::PCGSampler::PCGSampler(const Vector2i &pixel, uint32_t samplesPerPixel)
   }
 }
 
-std::unique_ptr<gm::Sampler> gm::PCGSampler::clone(int seed) {
-  // TODO Implement
-  return nullptr;
-}
-
 // Generate a single precision floating point value on the interval [0, 1)
 // Trick from MTGP: generate an uniformly distributed single precision number
 // in [1,2) and subtract 1.
