@@ -6,7 +6,7 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include "tiny_gltf.h"
 
-__host__ gm::Scene::Scene(const std::string &filepath) {
+gm::Scene::Scene(const std::string &filepath) {
   tinygltf::Model model = readGltfFile(filepath);
 
   // We deserialize the first scene in the GLTF file
@@ -24,6 +24,7 @@ __host__ gm::Scene::Scene(const std::string &filepath) {
   for (auto node_id : gltfScene.nodes) {
     tinygltf::Node node = model.nodes[node_id];
 
+    /// Expand logic to apply transformations from parent node
     if (isMesh(node)) {
       // Encountered mesh node. Load it
       loadMesh(node, model);
@@ -35,8 +36,14 @@ __host__ gm::Scene::Scene(const std::string &filepath) {
       loadCamera(node, model, cameraNodeId);
       loadedCamera = true;
     }
+  }
 
-    // Shrink the mesh vector once we have loaded all scene data
+  if (!loadedCamera) {
+    // Some glTF scenes do not provide a camera node. In this case we should find
+    // a good placement for the camera based on the bounding boxes of the scene.
+    // For now we place the camera at position (0, 0, 2), looking down the negative
+    // z axis
+    camera = std::make_shared<PerspectiveCamera>(0.7f);
   }
 }
 

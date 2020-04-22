@@ -17,7 +17,7 @@ namespace gm {
 /// matrix provided in this class.
 class PerspectiveCamera {
  public:
-  PerspectiveCamera(){};
+  PerspectiveCamera(const float &fov);
 
   // This constructor is based on the information that is included in a glTF
   // file.

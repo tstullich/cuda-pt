@@ -23,6 +23,6 @@ class Primitive {
   virtual float pdf() const { return 1.0f / area(); }
 
   // Return the surface normal of the shape given the point on the surface
-  virtual Vector3f normal(const Vector3f &surfacePoint) const = 0;
+  virtual Vector3f surfaceNormal(const Vector3f &surfacePoint) const = 0;
 };
 };  // namespace gm

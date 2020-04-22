@@ -187,7 +187,7 @@ class Vector3 {
 
   template <typename U>
   Vector3<T> operator*(U s) const {
-    if (isnan(s)) {
+    if (std::isnan(s)) {
       // Cannot multiply by Nan
       // TODO Find a way to handle errors inside device code
     }
@@ -247,7 +247,7 @@ class Vector3 {
     return -1;
   }
 
-  bool hasNans() const { return isnan(x) || isnan(y) || isnan(z); }
+  bool hasNans() const { return std::isnan(x) || std::isnan(y) || std::isnan(z); }
 
   float lengthSquared() const { return x * x + y * y + z * z; }
 
@@ -300,13 +300,6 @@ T minComponent(const Vector3<T> &v) {
 template <typename T>
 Vector3<T> normalize(const Vector3<T> &v) {
   return v / v.length();
-}
-
-template <typename T>
-inline std::ostream &operator<<(std::ostream &stream, const Vector3<T> &v) {
-  stream << "Vector3(" << v.x << ", " << v.y << ", " << v.z << ")";
-
-  return stream;
 }
 
 // Convenience typedefs. These should be used whenever possible

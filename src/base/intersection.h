@@ -1,6 +1,7 @@
 #pragma once
 
-#include <math.h>
+#include <cmath>
+#include <iostream>
 
 #include "vector.h"
 
@@ -15,5 +16,6 @@ struct Intersection {
   Vector3f surfacePoint;
   Vector3f normal;
   float tHit;
+  std::string name;
 };
 }  // namespace gm

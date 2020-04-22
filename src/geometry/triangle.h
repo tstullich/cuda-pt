@@ -64,8 +64,8 @@ class Triangle : public Primitive {
       return false;
     }
 
-    // We found an intersection. Now we need to transform the ray back into
-    // world space using the computer t value
+    // We found an intersection. Now we need to transform the intersection point back into
+    // world space and calculate the t there
     Vector3f localSurfacePoint = localRay.origin + localRay.direction * t;
 
     // Transform local surface point to world space
@@ -76,7 +76,8 @@ class Triangle : public Primitive {
 
     intersection->surfacePoint = worldSpacePoint;
     intersection->tHit = tWorld;
-    intersection->normal = normal(intersection->surfacePoint);
+    intersection->normal = surfaceNormal(intersection->surfacePoint);
+    intersection->name = mesh->name;
     return true;
   }
 
@@ -90,14 +91,11 @@ class Triangle : public Primitive {
   }
 
   // Return the surface normal of the shape given the point on the surface
-  Vector3f normal(const Vector3f &surfacePoint) const override {
+  Vector3f surfaceNormal(const Vector3f &surfacePoint) const override {
     Vector3f v0 = mesh->vertices[faceIndices->x];
     Vector3f v1 = mesh->vertices[faceIndices->y];
     Vector3f v2 = mesh->vertices[faceIndices->z];
-
-    Vector3f edge1 = v1 - v0;
-    Vector3f edge2 = v2 - v0;
-    return normalize(cross(edge1, edge2));
+    return normalize(cross(v1 - v0, v2 - v0));
   }
 
  private:

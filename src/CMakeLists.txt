@@ -24,7 +24,7 @@ target_include_directories(gamma_lib PUBLIC ${CMAKE_CURRENT_LIST_DIR}/samplers)
 set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -Wall -g")
 
 # Executable configurations
-add_executable(gamma main.cpp)
+add_executable(gamma gamma.cpp)
 target_link_libraries(gamma gamma_lib)
 
 install(TARGETS gamma DESTINATION ${GAMMA_INSTALL_BIN_DIR})

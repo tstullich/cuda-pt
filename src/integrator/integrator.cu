@@ -38,20 +38,24 @@ void gm::Integrator::pathtrace() {
         // Find an intersection point between the rays and the scene
         std::shared_ptr<Intersection> intersection =
             std::make_shared<Intersection>();
-        if (!bvh->intersect(ray, intersection)) {
-          // For now if we do not make any intersections with the scene
-          // simply skip the light contributions for this sample. Later
-          // the rendering loop can exit early here
-          continue;
+        bool hit = bvh->intersect(ray, intersection);
+        if (hit) {
+          std::cout << "Returned hit: " << intersection->name << " t: " << intersection->tHit << std::endl;
+          pixelColor += (intersection->normal + 1.0f) * 0.5f;// Adjust the normal vector before shading
         }
 
-        // Compute scattering ray based on material BxDFs
+        //if (!bvh->intersect(ray, intersection)) {
+        //  // For now if we do not make any intersections with the scene
+        //  // simply skip the light contributions for this sample. Later
+        //  // the rendering loop can exit early here
+        //  continue;
+        //}
 
+        // Compute scattering ray based on material BxDFs
         // Sample light sources to find path contribution. Skip for specular
         // materials
 
         // Sample BSDF for new path direction
-        pixelColor += (intersection->normal + 1.0f) * 0.5f;// Adjust the normal vector before shading
 
         // Apply Russian roulette for early termination
 

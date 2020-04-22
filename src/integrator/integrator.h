@@ -25,9 +25,6 @@ class Integrator {
   void pathtrace();
 
  private:
-  bool intersectScene(const Ray &ray,
-                      std::shared_ptr<Intersection> &intersection) const;
-
   const static uint8_t BLOCK_SIZE = 8;
   const static uint32_t IMAGE_WIDTH = 400;
   const static uint32_t IMAGE_HEIGHT = 300;

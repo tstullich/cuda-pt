@@ -1,5 +1,11 @@
 #include "camera.h"
 
+gm::PerspectiveCamera::PerspectiveCamera(const float &fov) {
+  scale = tanf((fov * 0.5f) * M_PI / 180.0f);
+
+  //cameraToWorld[0][0]
+}
+
 gm::PerspectiveCamera::PerspectiveCamera(const Matrix4x4f &cameraToWorld,
                                          const float &fov) : cameraToWorld(cameraToWorld) {
   // Set the scaling factor based on the fov
@@ -8,9 +14,8 @@ gm::PerspectiveCamera::PerspectiveCamera(const Matrix4x4f &cameraToWorld,
 
 gm::Ray gm::PerspectiveCamera::generate_ray(uint32_t xCoord, uint32_t yCoord,
                                             const Vector2f &sample) {
-  Vector3f origin;
   // Transform origin point using the camera-to-world matrix
-  origin = cameraToWorld.multiplyPoint(origin);
+  Vector3f origin = cameraToWorld.multiplyPoint(Vector3f(0.0f));
 
   // Create a projection point on the image plane using normalized device
   // coordinates. Move the initial point from the center using two samples
@@ -25,7 +30,7 @@ gm::Ray gm::PerspectiveCamera::generate_ray(uint32_t xCoord, uint32_t yCoord,
   // normalize
   direction = normalize(cameraToWorld.multiplyVector(direction));
 
-  return Ray(origin, direction);
+  return {origin, direction};
 }
 
 void gm::PerspectiveCamera::setImagePlane(const size_t &width,
