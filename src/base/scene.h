@@ -21,10 +21,11 @@ class Scene {
   std::shared_ptr<PerspectiveCamera> camera;
 
  private:
-  Matrix4x4f buildTransformationMatrix(const Vector3f &translation, const Quaternionf &rotation);
-
+  /// Build a Translation * Rotation * Scale matrix based on the given quantities.
+  /// A default value of (1, 1, 1,) for the scaling vector can be used, in cases
+  /// where a scaling transformation is undesired (i.e, camera transformation)
   Matrix4x4f buildTransformationMatrix(const Vector3f &translation, const Quaternionf &rotation,
-                                       const Vector3f &scale);
+                                       const Vector3f &scale = Vector3f(1.0f));
 
   /// Checks if the current node is a camera node or not. Will also check the children of
   /// the node to see if the "camera" attribute is contained there. Once found, the camera_id field
@@ -35,14 +36,14 @@ class Scene {
 
   void loadCamera(const tinygltf::Node &cameraNode, const tinygltf::Model &model, const int &cameraId);
 
-  std::shared_ptr<Mesh> loadMesh(const tinygltf::Node &meshNode,
-                                 const tinygltf::Model &model);
+  void loadMesh(const tinygltf::Node &meshNode,
+                const tinygltf::Model &model);
 
-  void loadTransform(const tinygltf::Node &node, Vector3f &translation,
-                     Quaternionf &rotation);
+  void loadCameraTransform(const tinygltf::Node &node, Vector3f &translation,
+                           Quaternionf &rotation);
 
-  void loadTransform(const tinygltf::Node &node, Vector3f &translation,
-                     Quaternionf &rotation, Vector3f &scale);
+  void loadMeshTransform(const tinygltf::Node &node, Vector3f &translation,
+                         Quaternionf &rotation, Vector3f &scale);
 
   tinygltf::Model readGltfFile(const std::string &filePath);
 

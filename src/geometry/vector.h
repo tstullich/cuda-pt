@@ -3,9 +3,7 @@
 #include <cuda.h>
 #include <cuda_runtime.h>
 
-#include <ostream>
-
-#include "math.h"  // For built-in CUDA functions
+#include <cmath>
 
 /// There are two common vector classes contained within this file.
 /// Vector2 and Vector3 have been templated to allow for flexible

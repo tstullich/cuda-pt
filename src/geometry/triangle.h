@@ -27,28 +27,30 @@ class Triangle : public Primitive {
   bool intersect(
       const Ray &ray,
       const std::shared_ptr<Intersection> &intersection) const override {
+    // Transform incoming ray into local coordinate space for intersection tests
+    Ray localRay = transformToLocal(ray);
+
     Vector3f edge1, edge2, h, s, q;
     float a, f, u, v;
-
     // Grab the vertices out of the mesh corresponding to the triangle face
     // to build an orthonormal basis
     edge1 = mesh->vertices[faceIndices->y] - mesh->vertices[faceIndices->x];
     edge2 = mesh->vertices[faceIndices->z] - mesh->vertices[faceIndices->x];
-    h = cross(ray.direction, edge2);
+    h = cross(localRay.direction, edge2);
     a = dot(edge1, h);
     if (a > -EPSILON && a < EPSILON) {
       return false;  // This ray is parallel to this triangle.
     }
 
     f = 1.0f / a;
-    s = ray.origin - mesh->vertices[faceIndices->x];
+    s = localRay.origin - mesh->vertices[faceIndices->x];
     u = f * dot(s, h);
     if (u < 0.0f || u > 1.0f) {
       return false;
     }
 
     q = cross(s, edge1);
-    v = f * dot(ray.direction, q);
+    v = f * dot(localRay.direction, q);
     if (v < 0.0f || u + v > 1.0f) {
       return false;
     }
@@ -62,8 +64,19 @@ class Triangle : public Primitive {
       return false;
     }
 
-    intersection->surfacePoint = ray.origin + ray.direction * t;
-    intersection->tHit = t;
+    // We found an intersection. Now we need to transform the ray back into
+    // world space using the computer t value
+    Vector3f localSurfacePoint = localRay.origin + localRay.direction * t;
+
+    // Transform local surface point to world space
+    Vector3f worldSpacePoint = mesh->meshToWorld.multiplyPoint(localSurfacePoint);
+
+    // T value is the distance between the ray origin and the world-space surface point
+    float tWorld = (worldSpacePoint - ray.origin).length();
+
+    intersection->surfacePoint = worldSpacePoint;
+    intersection->tHit = tWorld;
+    intersection->normal = normal(intersection->surfacePoint);
     return true;
   }
 
@@ -78,16 +91,24 @@ class Triangle : public Primitive {
 
   // Return the surface normal of the shape given the point on the surface
   Vector3f normal(const Vector3f &surfacePoint) const override {
-    Vector3f edge1 =
-        mesh->vertices[faceIndices->y] - mesh->vertices[faceIndices->x];
-    Vector3f edge2 =
-        mesh->vertices[faceIndices->z] - mesh->vertices[faceIndices->x];
-    return normal(cross(edge1, edge2));
+    Vector3f v0 = mesh->vertices[faceIndices->x];
+    Vector3f v1 = mesh->vertices[faceIndices->y];
+    Vector3f v2 = mesh->vertices[faceIndices->z];
+
+    Vector3f edge1 = v1 - v0;
+    Vector3f edge2 = v2 - v0;
+    return normalize(cross(edge1, edge2));
   }
 
  private:
+  Ray transformToLocal(const Ray &incomingRay) const {
+    Vector3f localOrigin = mesh->worldToMesh.multiplyPoint(incomingRay.origin);
+    Vector3f localDirection = mesh->worldToMesh.multiplyVector(incomingRay.direction);
+    return { localOrigin, localDirection };
+  }
+
   // Pointers into the mesh and the mesh itself
-  std::shared_ptr<Vector3i> faceIndices;
   std::shared_ptr<Mesh> mesh;
+  std::shared_ptr<Vector3i> faceIndices;
 };
 };  // namespace gm

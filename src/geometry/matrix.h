@@ -20,6 +20,16 @@ class Matrix4x4 {
 
   T *operator[](uint8_t i) { return m[i]; }
 
+  Matrix4x4<T> operator*(const Matrix4x4<T> &mat) const {
+    Matrix4x4<T> result;
+    for (size_t row = 0; row < 4; ++row) {
+      for (size_t col = 0; col < 4; ++col) {
+        result[row][col] = m[row][col] * mat.m[col][row];
+      }
+    }
+    return result;
+  }
+
   /// Multiply a point using the inner 3x3 matrix. We implicitly assume that our
   /// points have homogeneous coordinates so we need to normalize the w
   /// component

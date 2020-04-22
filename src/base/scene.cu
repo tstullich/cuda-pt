@@ -13,40 +13,31 @@ __host__ gm::Scene::Scene(const std::string &filepath) {
   tinygltf::Scene gltfScene = model.scenes[model.defaultScene];
   std::cout << "Loading scene: '" << gltfScene.name << "'" << std::endl;
 
-  // Pre-allocate the vector holding all meshes. This method is a bit more
-  // greedy, since not all top-level nodes are mesh nodes, but we will shrink
-  // the vector later to fit the loaded meshes
-  meshes = std::vector<std::shared_ptr<Mesh>>(gltfScene.nodes.size());
+  // We take a performance hit not preallocating the mesh vector, but
+  // instead our parsing loop is going to be a little cleaner. Since we
+  // are not going to work with large and complex scenes this should be fine
+  meshes = std::vector<std::shared_ptr<Mesh>>();
 
   // If there are multiple cameras defined for this scene we only want to
-  // load the first one until we can support camera selection
+  // load the first one we encounter until we can support camera selection
   bool loadedCamera = false;
   for (auto node_id : gltfScene.nodes) {
     tinygltf::Node node = model.nodes[node_id];
 
     if (isMesh(node)) {
       // Encountered mesh node. Load it
-      loadMesh(model.meshes[node.mesh], model);
+      loadMesh(node, model);
     }
 
     int cameraNodeId;
     if (isCamera(node, model, cameraNodeId) && !loadedCamera) {
       // Encountered camera node. Load it
-      loadCamera(node, model);
+      loadCamera(node, model, cameraNodeId);
       loadedCamera = true;
     }
 
     // Shrink the mesh vector once we have loaded all scene data
-    meshes.shrink_to_fit();
   }
-}
-
-/// We use this function to build the camera-to-world transformation matrix
-gm::Matrix4x4f gm::Scene::buildTransformationMatrix(const Vector3f &translation, const Quaternionf &rotation) {
-  Matrix4x4f T = translationMatrix(translation);
-  Matrix4x4f R = rotation.toMat4();
-  Matrix4x4f S = scaleMatrix(Vector3f(1.0f));
-  return Matrix4x4f();
 }
 
 gm::Matrix4x4f gm::Scene::buildTransformationMatrix(const Vector3f &translation, const Quaternionf &rotation,
@@ -174,7 +165,6 @@ void gm::Scene::loadCamera(const tinygltf::Node &cameraNode,
 std::shared_ptr<gm::Mesh> gm::Scene::loadMesh(const tinygltf::Node &meshNode,
                                               const tinygltf::Model &model) {
   tinygltf::Mesh mesh = model.meshes[meshNode.mesh];
-  std::vector<tinygltf::Mesh> meshes = model.meshes;
   std::vector<tinygltf::Buffer> buffers = model.buffers;
   std::vector<tinygltf::Accessor> accessors = model.accessors;
   std::vector<tinygltf::BufferView> bufferViews = model.bufferViews;
@@ -240,7 +230,7 @@ std::shared_ptr<gm::Mesh> gm::Scene::loadMesh(const tinygltf::Node &meshNode,
     // TODO handle byteStride
 
     if (facesAccessor.componentType == 5123) {// Component type unsigned
-      short unsigned short *facesBytes = reinterpret_cast<unsigned short *>(
+      auto *facesBytes = reinterpret_cast<unsigned short *>(
           facesBuffer.data.data() + facesBufferOffset);
       for (size_t f = 0; f < faceCount; ++f) {
         primitiveFaces[f] =
@@ -249,7 +239,7 @@ std::shared_ptr<gm::Mesh> gm::Scene::loadMesh(const tinygltf::Node &meshNode,
       }
 
     } else if (facesAccessor.componentType == 5125) {// Component type unsigned int
-      unsigned int *facesBytes = reinterpret_cast<unsigned int *>(
+      auto *facesBytes = reinterpret_cast<unsigned int *>(
           facesBuffer.data.data() + facesBufferOffset);
       for (size_t f = 0; f < faceCount; ++f) {
         primitiveFaces[f] =
@@ -267,11 +257,18 @@ std::shared_ptr<gm::Mesh> gm::Scene::loadMesh(const tinygltf::Node &meshNode,
     primitiveOffset += primitivePositions.size();
   }
 
-  return std::shared_ptr<Mesh>(new Mesh(positions, normals, faces));
+  // TODO Add support for loading a complete matrix
+  Vector3f translation;
+  Quaternionf rotation;
+  Vector3f scale;
+  loadMeshTransform(meshNode, translation, rotation, scale);
+
+  Matrix4x4f localTransformation = buildTransformationMatrix(translation, rotation, scale);
+  meshes.push_back(std::make_shared<Mesh>(Mesh(positions, normals, faces, mesh.name, localTransformation)));
 }
 
-void gm::Scene::loadTransform(const tinygltf::Node &node, Vector3f &translation,
-                              Quaternionf &rotation) {
+void gm::Scene::loadCameraTransform(const tinygltf::Node &node, Vector3f &translation,
+                                    Quaternionf &rotation) {
   if (node.translation.size() == 3) {
     translation =
         Vector3f(node.translation[0], node.translation[1], node.translation[2]);
@@ -287,8 +284,8 @@ void gm::Scene::loadTransform(const tinygltf::Node &node, Vector3f &translation,
   }
 }
 
-void gm::Scene::loadTransform(const tinygltf::Node &node, Vector3f &translation,
-                              Quaternionf &rotation, Vector3f &scale) {
+void gm::Scene::loadMeshTransform(const tinygltf::Node &node, Vector3f &translation,
+                                  Quaternionf &rotation, Vector3f &scale) {
   if (node.translation.size() == 3) {
     translation =
         Vector3f(node.translation[0], node.translation[1], node.translation[2]);

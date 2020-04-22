@@ -18,7 +18,7 @@ void gm::Integrator::pathtrace() {
   uint8_t *imageBuffer = image->getBuffer();
   size_t imageWidth = image->getWidth();
   size_t imageHeight = image->getHeight();
-  uint32_t samplesPerPixel = 4; // Can be configured later
+  uint32_t samplesPerPixel = 4;// Can be configured later
 
   for (uint32_t yCoord = 0; yCoord < imageHeight; ++yCoord) {
     for (uint32_t xCoord = 0; xCoord < imageWidth; ++xCoord) {
@@ -37,7 +37,7 @@ void gm::Integrator::pathtrace() {
 
         // Find an intersection point between the rays and the scene
         std::shared_ptr<Intersection> intersection =
-            std::shared_ptr<Intersection>();
+            std::make_shared<Intersection>();
         if (!bvh->intersect(ray, intersection)) {
           // For now if we do not make any intersections with the scene
           // simply skip the light contributions for this sample. Later
@@ -51,8 +51,7 @@ void gm::Integrator::pathtrace() {
         // materials
 
         // Sample BSDF for new path direction
-        pixelColor += (intersection->normal + 1.0f) *
-                      0.5f; // Adjust the normal vector before shading
+        pixelColor += (intersection->normal + 1.0f) * 0.5f;// Adjust the normal vector before shading
 
         // Apply Russian roulette for early termination
 
