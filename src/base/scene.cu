@@ -203,8 +203,6 @@ void gm::Scene::loadTransforms(const tinygltf::Node &node, Vector3f &translation
   } else {
     rotation = Quaternionf(node.rotation[0], node.rotation[1], node.rotation[2],
                            node.rotation[3]);
-  } else {
-    rotation = Quaternionf();
   }
 }
 
