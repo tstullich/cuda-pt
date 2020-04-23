@@ -37,7 +37,8 @@ class Matrix4x4 {
     Matrix4x4<T> result;
     for (size_t row = 0; row < 4; ++row) {
       for (size_t col = 0; col < 4; ++col) {
-        result[row][col] = m[row][col] * mat.m[col][row];
+        result[row][col] = m[row][0] * mat.m[0][col] + m[row][1] * mat.m[1][col] +
+                           m[row][2] * mat.m[2][col] + m[row][3] * mat.m[3][col];
       }
     }
     return result;

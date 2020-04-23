@@ -5,7 +5,6 @@
 
 #include <ostream>
 
-#include "math.h"  // For built-in CUDA functions
 #include "matrix.h"
 
 namespace gm {
@@ -20,27 +19,37 @@ class Quaternion {
 
   Matrix4x4<T> toMat4() const {
     Matrix4x4<T> result;
-    T qxx(x * x);
-    T qyy(y * y);
-    T qzz(z * z);
-    T qxz(x * z);
-    T qxy(x * y);
-    T qyz(y * z);
-    T qwx(w * x);
-    T qwy(w * y);
-    T qwz(w * z);
+    T x2 = x + x;
+    T y2 = y + y;
+    T z2 = z + z;
 
-    result[0][0] = T(1) - T(2) * (qyy + qzz);
-    result[1][0] = T(2) * (qxy + qwz);
-    result[2][0] = T(2) * (qxz - qwy);
+    T xx2 = x2 * x;
+    T xy2 = x2 * y;
+    T xz2 = x2 * z;
 
-    result[0][1] = T(2) * (qxy - qwz);
-    result[1][1] = T(1) - T(2) * (qxx + qzz);
-    result[2][1] = T(2) * (qyz + qwx);
+    T yy2 = y2 * y;
+    T yz2 = y2 * z;
+    T zz2 = z2 * z;
 
-    result[0][2] = T(2) * (qxz + qwy);
-    result[1][2] = T(2) * (qyz - qwx);
-    result[2][2] = T(1) - T(2) * (qxx + qyy);
+    T sy2 = y2 * w;
+    T sz2 = z2 * w;
+    T sx2 = x2 * w;
+
+    result[0][0] = 1.0f - yy2 - zz2;
+    result[0][1] = xy2 + sz2;
+    result[0][2] = xz2 - sy2;
+    result[0][3] = 0.0f;
+
+    result[1][0] = xy2 - sz2;
+    result[1][1] = 1.0f - xx2 - zz2;
+    result[1][2] = yz2 + sx2;
+    result[1][3] = 0.0f;
+
+    result[2][0] = xz2 + sy2;
+    result[2][1] = yz2 - sx2;
+    result[2][2] = 1.0f - xx2 - yy2;
+    result[2][3] = 0.0f;
+
     return result;
   }
 
