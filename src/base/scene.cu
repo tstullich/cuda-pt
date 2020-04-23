@@ -33,9 +33,6 @@ void gm::Scene::buildScene(const tinygltf::Scene &scene, const tinygltf::Model &
   if (!loadedCamera) {
     // TODO Some glTF scenes do not provide a camera node. In this case we should find
     // a good placement for the camera based on the bounding boxes of the scene.
-    // For now we place the camera at position (0, 0, 2), looking down the negative
-    // z axis
-    //camera = std::make_shared<PerspectiveCamera>(0.70f);
   }
 }
 
@@ -146,17 +143,15 @@ void gm::Scene::loadMesh(const tinygltf::Node &meshNode,
     std::vector<Vector3f> primitiveNormals(
         normalsBytes, normalsBytes + normalsBufferLength / sizeof(Vector3f));
 
-    // Extract face indices
-    size_t facesBufferOffset = facesBufferView.byteOffset;
-
     static const size_t faceCount =
         facesAccessor.count / gm::Scene::TRIANGLE_VERT_COUNT;// gltf only supports triangles. No quads or
                                                              // ngons
-
     std::vector<Vector3i> primitiveFaces(faceCount);
 
     // TODO handle byteStride
 
+    // Extract face indices
+    size_t facesBufferOffset = facesBufferView.byteOffset;
     if (facesAccessor.componentType == 5123) {// Component type unsigned
       auto *facesBytes = reinterpret_cast<unsigned short *>(
           facesBuffer.data.data() + facesBufferOffset);
@@ -191,20 +186,21 @@ void gm::Scene::loadMesh(const tinygltf::Node &meshNode,
 
 void gm::Scene::loadTransforms(const tinygltf::Node &node, Vector3f &translation,
                                Quaternionf &rotation, Vector3f &scale) {
-  if (node.translation.size() == 3) {
-    translation =
-        Vector3f(node.translation[0], node.translation[1], node.translation[2]);
+  if (node.translation.empty()) {
+    translation = Vector3f(0.0f);
   } else {
-    translation = Vector3f(0);
+    translation = Vector3f(node.translation[0], node.translation[1], node.translation[2]);
   }
 
-  if (node.scale.size() == 3) {
-    scale = Vector3f(node.scale[0], node.scale[1], node.scale[2]);
-  } else {
+  if (node.scale.empty()) {
     scale = Vector3f(1);
+  } else {
+    scale = Vector3f(node.scale[0], node.scale[1], node.scale[2]);
   }
 
-  if (node.rotation.size() == 4) {
+  if (node.rotation.empty()) {
+    rotation = Quaternionf();
+  } else {
     rotation = Quaternionf(node.rotation[0], node.rotation[1], node.rotation[2],
                            node.rotation[3]);
   } else {

@@ -2,8 +2,6 @@
 
 gm::PerspectiveCamera::PerspectiveCamera(const float &fov) {
   scale = tanf((fov * 0.5f) * M_PI / 180.0f);
-
-  //cameraToWorld[0][0]
 }
 
 gm::PerspectiveCamera::PerspectiveCamera(const Matrix4x4f &cameraToWorld,

@@ -8,8 +8,6 @@
 
 namespace gm {
 
-static const float EPSILON = 0.00001f;  // For preventing self-intersections
-
 /// A class that represents a single triangle. The intersection test is based on
 /// the Möller–Trumbore algorithm:
 /// https://en.wikipedia.org/wiki/M%C3%B6ller%E2%80%93Trumbore_intersection_algorithm
@@ -20,7 +18,8 @@ class Triangle : public Primitive {
  public:
   Triangle(const std::shared_ptr<Mesh> &mesh,
            const std::shared_ptr<Vector3i> &faceIndices)
-      : mesh(mesh), faceIndices(faceIndices){};
+      : mesh(mesh),
+        faceIndices(faceIndices){};
 
   /// The intersection test assumes that the coordinates are in world space,
   /// otherwise the intersection test will run into undefined behavior
@@ -30,40 +29,42 @@ class Triangle : public Primitive {
     // Transform incoming ray into local coordinate space for intersection tests
     Ray localRay = transformToLocal(ray);
 
-    Vector3f edge1, edge2, h, s, q;
-    float a, f, u, v;
     // Grab the vertices out of the mesh corresponding to the triangle face
     // to build an orthonormal basis
-    edge1 = mesh->vertices[faceIndices->y] - mesh->vertices[faceIndices->x];
-    edge2 = mesh->vertices[faceIndices->z] - mesh->vertices[faceIndices->x];
-    h = cross(localRay.direction, edge2);
-    a = dot(edge1, h);
-    if (a > -EPSILON && a < EPSILON) {
-      return false;  // This ray is parallel to this triangle.
+    Vector3f v0 = mesh->vertices[faceIndices->x];
+    Vector3f v1 = mesh->vertices[faceIndices->y];
+    Vector3f v2 = mesh->vertices[faceIndices->z];
+
+    Vector3f edge1 = v1 - v0;
+    Vector3f edge2 = v2 - v0;
+    Vector3f pvec = cross(localRay.direction, edge2);
+    float det = dot(edge1, pvec);
+    if (det < EPSILON) {
+      // if the determinant is negative the triangle is backfacing
+      // if the determinant is close to 0, the ray misses the triangle
+      return false;
     }
 
-    f = 1.0f / a;
-    s = localRay.origin - mesh->vertices[faceIndices->x];
-    u = f * dot(s, h);
+    if (fabs(det) < EPSILON) {
+      // ray and triangle are parallel if det is close to 0
+      return false;
+    }
+
+    float invDet = 1.0f / det;
+    Vector3f tvec = ray.origin - v0;
+    float u = dot(tvec, pvec) * invDet;
     if (u < 0.0f || u > 1.0f) {
       return false;
     }
 
-    q = cross(s, edge1);
-    v = f * dot(localRay.direction, q);
-    if (v < 0.0f || u + v > 1.0f) {
+    Vector3f qvec = cross(tvec, edge1);
+    float v = dot(ray.direction, qvec) * invDet;
+    if (v < 0 || u + v > 1) {
       return false;
     }
 
-    // At this stage we can compute t to find out where the intersection point
-    // is on the line.
-    float t = f * dot(edge2, q);
-    if (t < EPSILON) {
-      // This means that there is a line intersection but not a ray
-      // intersection.
-      return false;
-    }
 
+    float t = dot(edge2, qvec) * invDet;
     // We found an intersection. Now we need to transform the intersection point back into
     // world space and calculate the t there
     Vector3f localSurfacePoint = localRay.origin + localRay.direction * t;
@@ -102,11 +103,13 @@ class Triangle : public Primitive {
   Ray transformToLocal(const Ray &incomingRay) const {
     Vector3f localOrigin = mesh->worldToMesh.multiplyPoint(incomingRay.origin);
     Vector3f localDirection = mesh->worldToMesh.multiplyVector(incomingRay.direction);
-    return { localOrigin, localDirection };
+    return {localOrigin, localDirection};
   }
+
+  constexpr static const float EPSILON = 1e-8;// For preventing self-intersections
 
   // Pointers into the mesh and the mesh itself
   std::shared_ptr<Mesh> mesh;
   std::shared_ptr<Vector3i> faceIndices;
 };
-};  // namespace gm
+};// namespace gm

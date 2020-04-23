@@ -44,12 +44,12 @@ void gm::Integrator::pathtrace() {
           pixelColor += (intersection->normal + 1.0f) * 0.5f;// Adjust the normal vector before shading
         }
 
-        //if (!bvh->intersect(ray, intersection)) {
-        //  // For now if we do not make any intersections with the scene
-        //  // simply skip the light contributions for this sample. Later
-        //  // the rendering loop can exit early here
-        //  continue;
-        //}
+        if (!bvh->intersect(ray, intersection)) {
+          // For now if we do not make any intersections with the scene
+          // simply skip the light contributions for this sample. Later
+          // the rendering loop can exit early here
+          continue;
+        }
 
         // Compute scattering ray based on material BxDFs
         // Sample light sources to find path contribution. Skip for specular
