@@ -48,11 +48,11 @@ class Matrix4x4 {
   /// Multiply a point using the inner 3x3 matrix. We implicitly assume that our
   /// points have homogeneous coordinates so we need to normalize the w
   /// component
-  Vector3<T> multiplyPoint(const Vector3<T> &rhs) const {
-    T x = m[0][0] * rhs.x + m[0][1] * rhs.y + m[0][2] * rhs.z + m[0][3];
-    T y = m[1][0] * rhs.x + m[1][1] * rhs.y + m[1][2] * rhs.z + m[1][3];
-    T z = m[2][0] * rhs.x + m[2][1] * rhs.y + m[2][2] * rhs.z + m[2][3];
-    T w = m[3][0] * rhs.x + m[3][1] * rhs.y + m[3][2] * rhs.z + m[3][3];
+  Vector3<T> multiplyPoint(const Vector3<T> &lhs) const {
+    T x = m[0][0] * lhs.x + m[0][1] * lhs.y + m[0][2] * lhs.z + m[0][3];
+    T y = m[1][0] * lhs.x + m[1][1] * lhs.y + m[1][2] * lhs.z + m[1][3];
+    T z = m[2][0] * lhs.x + m[2][1] * lhs.y + m[2][2] * lhs.z + m[2][3];
+    T w = m[3][0] * lhs.x + m[3][1] * lhs.y + m[3][2] * lhs.z + m[3][3];
 
     // Normalize points by w if needed
     return (w == 1.0f || w == 0.0f) ? Vector3<T>(x, y, z)
@@ -60,10 +60,10 @@ class Matrix4x4 {
   }
 
   /// Multiply a vector using the inner 3x3 matrix
-  Vector3<T> multiplyVector(const Vector3<T> &rhs) const {
-    return Vector3<T>(m[0][0] * rhs.x + m[0][1] * rhs.y + m[0][2] * rhs.z,
-                      m[1][0] * rhs.x + m[1][1] * rhs.y + m[1][2] * rhs.z,
-                      m[2][0] * rhs.x + m[2][1] * rhs.y + m[2][2] * rhs.z);
+  Vector3<T> multiplyVector(const Vector3<T> &lhs) const {
+    return Vector3<T>(m[0][0] * lhs.x + m[0][1] * lhs.y + m[0][2] * lhs.z,
+                      m[1][0] * lhs.x + m[1][1] * lhs.y + m[1][2] * lhs.z,
+                      m[2][0] * lhs.x + m[2][1] * lhs.y + m[2][2] * lhs.z);
   }
 
   // Initialize matrix as the identity matrix

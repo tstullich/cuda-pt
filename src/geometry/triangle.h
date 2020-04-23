@@ -51,14 +51,14 @@ class Triangle : public Primitive {
     }
 
     float invDet = 1.0f / det;
-    Vector3f tvec = ray.origin - v0;
+    Vector3f tvec = localRay.origin - v0;
     float u = dot(tvec, pvec) * invDet;
     if (u < 0.0f || u > 1.0f) {
       return false;
     }
 
     Vector3f qvec = cross(tvec, edge1);
-    float v = dot(ray.direction, qvec) * invDet;
+    float v = dot(localRay.direction, qvec) * invDet;
     if (v < 0 || u + v > 1) {
       return false;
     }
