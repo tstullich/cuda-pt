@@ -4,6 +4,7 @@
 #include <cuda_runtime.h>
 
 #include <cmath>
+#include <ostream>
 
 /// There are two common vector classes contained within this file.
 /// Vector2 and Vector3 have been templated to allow for flexible
@@ -307,4 +308,12 @@ typedef Vector2<float> Vector2f;
 typedef Vector2<int> Vector2i;
 typedef Vector3<float> Vector3f;
 typedef Vector3<int> Vector3i;
+
+template <typename T>
+inline std::ostream &operator<<(std::ostream &stream, const Vector3<T> &v) {
+  stream << "Vector3(" << v.x << ", " << v.y << ", " << v.z << ")";
+
+  return stream;
+}
+
 }  // namespace gm
