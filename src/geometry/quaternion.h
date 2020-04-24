@@ -38,17 +38,14 @@ class Quaternion {
     result[0][0] = T(1) - yy2 - zz2;
     result[0][1] = xy2 + sz2;
     result[0][2] = xz2 - sy2;
-    result[0][3] = T(0);
 
     result[1][0] = xy2 - sz2;
     result[1][1] = T(1) - xx2 - zz2;
     result[1][2] = yz2 + sx2;
-    result[1][3] = T(0);
 
     result[2][0] = xz2 + sy2;
     result[2][1] = yz2 - sx2;
     result[2][2] = T(1) - xx2 - yy2;
-    result[2][3] = T(0);
 
     return result;
   }

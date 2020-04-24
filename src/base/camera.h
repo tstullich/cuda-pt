@@ -25,7 +25,7 @@ class PerspectiveCamera {
 
   /// Compute a new camera ray for the given raster space coordinate. Also
   /// requires a sample to generate sampled coordinates
-  Ray generate_ray(uint32_t xPos, uint32_t yPos, const Vector2f &sample);
+  Ray generateRay(uint32_t xPos, uint32_t yPos, const Vector2f &sample);
 
   // Allow setting the image dimensions
   void setImagePlane(const size_t &width, const size_t &height);

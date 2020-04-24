@@ -20,12 +20,14 @@ class Matrix4x4 {
 
   /// Initialize a Matrix using a vector with 16 entries. This is useful
   /// for loading matrices from glTF scene descriptions. Vector is assumed
-  /// to store its entries in row-major form
+  /// to store its entries in row-major form. Because glTF stores its matrices
+  /// in column-major form we also need to transpose the incoming matrix
   Matrix4x4(const std::vector<double> &matrix) {
     for (size_t row = 0; row < 4; ++row) {
       for (size_t col = 0; col < 4; ++col) {
         size_t idx = (row * 4) + col;
-        m[row][col] = static_cast<float>(matrix[idx]);
+        // Store matrix entry in transposed form
+        m[col][row] = static_cast<float>(matrix[idx]);
       }
     }
   }

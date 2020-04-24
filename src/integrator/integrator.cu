@@ -33,7 +33,7 @@ void gm::Integrator::pathtrace() {
         Vector2f cameraSample = sampler.get2D();
 
         // Generate primary rays
-        Ray ray = scene->camera->generate_ray(xCoord, yCoord, cameraSample);
+        Ray ray = scene->camera->generateRay(xCoord, yCoord, cameraSample);
 
         // Find an intersection point between the rays and the scene
         std::shared_ptr<Intersection> intersection =
@@ -48,6 +48,7 @@ void gm::Integrator::pathtrace() {
           // For now if we do not make any intersections with the scene
           // simply skip the light contributions for this sample. Later
           // the rendering loop can exit early here
+          sampler.startNextSample();
           continue;
         }
 

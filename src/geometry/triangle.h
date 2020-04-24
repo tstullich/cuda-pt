@@ -51,23 +51,22 @@ class Triangle : public Primitive {
     }
 
     float invDet = 1.0f / det;
-    Vector3f tvec = localRay.origin - v0;
-    float u = dot(tvec, pvec) * invDet;
+    Vector3f tVec = localRay.origin - v0;
+    float u = dot(tVec, pvec) * invDet;
     if (u < 0.0f || u > 1.0f) {
       return false;
     }
 
-    Vector3f qvec = cross(tvec, edge1);
-    float v = dot(localRay.direction, qvec) * invDet;
-    if (v < 0 || u + v > 1) {
+    Vector3f qVec = cross(tVec, edge1);
+    float v = dot(localRay.direction, qVec) * invDet;
+    if (v < 0.0f || u + v > 1.0f) {
       return false;
     }
 
-
-    float t = dot(edge2, qvec) * invDet;
     // We found an intersection. Now we need to transform the intersection point back into
     // world space and calculate the t there
-    Vector3f localSurfacePoint = localRay.origin + localRay.direction * t;
+    float tLocal = dot(edge2, qVec) * invDet;
+    Vector3f localSurfacePoint = localRay.origin + localRay.direction * tLocal;
 
     // Transform local surface point to world space
     Vector3f worldSpacePoint = mesh->meshToWorld.multiplyPoint(localSurfacePoint);
