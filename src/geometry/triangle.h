@@ -26,58 +26,49 @@ class Triangle : public Primitive {
   bool intersect(
       const Ray &ray,
       const std::shared_ptr<Intersection> &intersection) const override {
-    // Transform incoming ray into local coordinate space for intersection tests
-    Ray localRay = transformToLocal(ray);
-
-    // Grab the vertices out of the mesh corresponding to the triangle face
-    // to build an orthonormal basis
     Vector3f v0 = mesh->vertices[faceIndices->x];
     Vector3f v1 = mesh->vertices[faceIndices->y];
     Vector3f v2 = mesh->vertices[faceIndices->z];
 
+    v0 = mesh->meshToWorld.multiplyPoint(v0);
+    v1 = mesh->meshToWorld.multiplyPoint(v1);
+    v2 = mesh->meshToWorld.multiplyPoint(v2);
+
     Vector3f edge1 = v1 - v0;
     Vector3f edge2 = v2 - v0;
-    Vector3f pvec = cross(localRay.direction, edge2);
-    float det = dot(edge1, pvec);
-    if (det < EPSILON) {
-      // if the determinant is negative the triangle is backfacing
-      // if the determinant is close to 0, the ray misses the triangle
-      return false;
-    }
 
-    if (fabs(det) < EPSILON) {
-      // ray and triangle are parallel if det is close to 0
+    Vector3f h = cross(ray.direction, edge2);
+    float det = dot(edge1, h);
+    if (det > -EPSILON && det < EPSILON) {
+      // This ray is parallel to this triangle
       return false;
     }
 
     float invDet = 1.0f / det;
-    Vector3f tVec = localRay.origin - v0;
-    float u = dot(tVec, pvec) * invDet;
+    Vector3f s = ray.origin - v0;
+    float u =  dot(s, h) * invDet;
     if (u < 0.0f || u > 1.0f) {
       return false;
     }
 
-    Vector3f qVec = cross(tVec, edge1);
-    float v = dot(localRay.direction, qVec) * invDet;
+    Vector3f q = cross(s, edge1);
+    float v = dot(ray.direction, q) * invDet;
     if (v < 0.0f || u + v > 1.0f) {
       return false;
     }
 
-    // We found an intersection. Now we need to transform the intersection point back into
-    // world space and calculate the t there
-    float tLocal = dot(edge2, qVec) * invDet;
-    Vector3f localSurfacePoint = localRay.origin + localRay.direction * tLocal;
+    // At this stage we can compute t to find out where the intersection point is on the line.
+    float t = dot(edge2, q) * invDet;
+    if (t < EPSILON) {
+      // This means that there is a line intersection but not a ray intersection.
+      return false;
+    }
 
-    // Transform local surface point to world space
-    Vector3f worldSpacePoint = mesh->meshToWorld.multiplyPoint(localSurfacePoint);
-
-    // T value is the distance between the ray origin and the world-space surface point
-    float tWorld = (worldSpacePoint - ray.origin).length();
-
-    intersection->surfacePoint = worldSpacePoint;
-    intersection->tHit = tWorld;
-    intersection->normal = surfaceNormal(intersection->surfacePoint);
+    intersection->tHit = t;
     intersection->name = mesh->name;
+    // Surface point in barycentric coordinates
+    intersection->surfacePoint = Vector3f(u, v, 1.0f - u - v);
+
     return true;
   }
 
@@ -99,13 +90,7 @@ class Triangle : public Primitive {
   }
 
  private:
-  Ray transformToLocal(const Ray &incomingRay) const {
-    Vector3f localOrigin = mesh->worldToMesh.multiplyPoint(incomingRay.origin);
-    Vector3f localDirection = mesh->worldToMesh.multiplyVector(incomingRay.direction);
-    return {localOrigin, localDirection};
-  }
-
-  constexpr static const float EPSILON = 1e-8;// For preventing self-intersections
+  constexpr static const float EPSILON = 1e-7;// For preventing self-intersections
 
   // Pointers into the mesh and the mesh itself
   std::shared_ptr<Mesh> mesh;

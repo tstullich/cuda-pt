@@ -8,7 +8,8 @@ int main(int argc, char** argv) {
     if (argc > 1) {
       // Load our scene using the integrator. We should move this out
       // in the future to decouple Integrator & Scene classes
-      gm::Integrator integrator(argv[1]);
+      gm::RenderOptions options(400, 300, 4);
+      gm::Integrator integrator(argv[1], options);
       integrator.pathtrace();
     } else {
       std::cout

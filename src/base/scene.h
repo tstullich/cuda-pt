@@ -4,17 +4,20 @@
 #include <unordered_map>
 
 #include "camera.h"
+#include "integrator.h"
 #include "matrix.h"
 #include "mesh.h"
 #include "tiny_gltf.h"
 
 namespace gm {
 
+class RenderOptions;
+
 class Scene {
  public:
   Scene(){};
 
-  Scene(const std::string &filePath);
+  Scene(const std::string &filePath, const RenderOptions &options);
 
   std::vector<std::shared_ptr<Mesh>> meshes;
 
@@ -25,7 +28,7 @@ class Scene {
   /// scene graph. We traverse the graph from the top down into all of the child nodes
   /// building a transformation matrix at each step. This should leave us with a local
   /// transformation matrix which can be added to all objects in the scene (meshes or cameras).
-  void buildScene(const tinygltf::Scene &scene, const tinygltf::Model &model);
+  void buildScene(const tinygltf::Scene &scene, const tinygltf::Model &model, const RenderOptions &options);
 
   /// Build a Translation * Rotation * Scale matrix based on the given quantities.
   /// A default value of (1, 1, 1,) for the scaling vector can be used, in cases
@@ -56,6 +59,9 @@ class Scene {
   tinygltf::Model readGltfFile(const std::string &filePath);
 
   void traverseNode(const tinygltf::Node &rootNode, const tinygltf::Model &model, Matrix4x4f &transformationMatrix);
+
+  // Special case for parsing the camera. Sometimes glTF scenes do not contain a camera
+  bool loadedCamera = false;
 
   static const uint8_t HEADER_BYTES = 4;
   static const uint8_t TRIANGLE_VERT_COUNT = 3;

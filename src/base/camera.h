@@ -17,26 +17,26 @@ namespace gm {
 /// matrix provided in this class.
 class PerspectiveCamera {
  public:
-  PerspectiveCamera(const float &fov);
+  /// Default constructor in case the glTF scene does not contain a camera
+  PerspectiveCamera(const float &fov, const float &near, const float &far);
 
-  // This constructor is based on the information that is included in a glTF
-  // file.
-  PerspectiveCamera(const Matrix4x4f &cameraToWorld, const float &fov);
+  PerspectiveCamera(const Matrix4x4f &cameraToWorld, const float &fov, const float &near, const float &far);
 
   /// Compute a new camera ray for the given raster space coordinate. Also
   /// requires a sample to generate sampled coordinates
   Ray generateRay(uint32_t xPos, uint32_t yPos, const Vector2f &sample);
 
   // Allow setting the image dimensions
-  void setImagePlane(const size_t &width, const size_t &height);
+  void initializeMatrices(const size_t &width, const size_t &height);
 
  private:
-  float aspectRatio;
-  float scale;
+  // Projection plane's near and far positions
+  float near;
+  float far;
 
-  size_t imageWidth;
-  size_t imageHeight;
+  float fov;
 
   Matrix4x4f cameraToWorld;
+  Matrix4x4f projection;
 };
 }  // namespace gm

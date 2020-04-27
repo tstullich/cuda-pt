@@ -6,34 +6,39 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include "tiny_gltf.h"
 
-gm::Scene::Scene(const std::string &filepath) {
+gm::Scene::Scene(const std::string &filepath, const RenderOptions &options) {
   tinygltf::Model model = readGltfFile(filepath);
 
   meshes = std::vector<std::shared_ptr<Mesh>>();
 
-  // We deserialize the first scene in the GLTF file
-  buildScene(model.scenes[model.defaultScene], model);
+  // Check if a default scene is available, otherwise use the first scene available
+  int defaultId = (model.defaultScene != -1) ? model.defaultScene : 0;
+  tinygltf::Scene defaultScene = model.scenes[defaultId];
+  buildScene(defaultScene, model, options);
 
   // Shrink the vector in case we had to resize and did not
   // fill the entire vector
   meshes.shrink_to_fit();
 }
 
-void gm::Scene::buildScene(const tinygltf::Scene &scene, const tinygltf::Model &model) {
+void gm::Scene::buildScene(const tinygltf::Scene &scene, const tinygltf::Model &model, const RenderOptions &options) {
   std::cout << "Loading scene: '" << scene.name << "'" << std::endl;
 
   // If there are multiple cameras defined for this scene we only want to
   // load the first one we encounter until we can support camera selection
-  bool loadedCamera = false;
   for (auto rootNodeId : scene.nodes) {
     Matrix4x4f rootTransformation;// Initialized to Identity matrix
     traverseNode(model.nodes[rootNodeId], model, rootTransformation);
   }
 
   if (!loadedCamera) {
-    // TODO Some glTF scenes do not provide a camera node. In this case we should find
-    // a good placement for the camera based on the bounding boxes of the scene.
+    // Some glTF scenes do not provide a camera node. In this case we place the camera at the world space origin
+    // facing down the -Z axis. Later we can find a better placement based on the meshes in the scene
+    camera = std::make_shared<PerspectiveCamera>(PerspectiveCamera(0.7f, 0.1f, 100.0f));
   }
+
+  /// Use the camera parameters to initialize the camera matrices
+  camera->initializeMatrices(options.imageWidth, options.imageHeight);
 }
 
 gm::Matrix4x4f gm::Scene::buildTransformationMatrix(const tinygltf::Node &node,
@@ -83,7 +88,11 @@ void gm::Scene::loadCamera(const tinygltf::Node &cameraNode, const tinygltf::Mod
 
   Matrix4x4f localTransformation = parentTransformation * buildTransformationMatrix(cameraNode, model);
   auto fov = static_cast<float>(cameraData.perspective.yfov);
-  camera = std::make_shared<PerspectiveCamera>(PerspectiveCamera(localTransformation, fov));
+  auto near = static_cast<float>(cameraData.perspective.znear);
+  // zfar might not always be present. Default to set the far plane at 100 units if it's not present
+  auto far = cameraData.perspective.zfar > 0.0f ? static_cast<float>(cameraData.perspective.zfar) : 100.0f;
+  camera = std::make_shared<PerspectiveCamera>(PerspectiveCamera(localTransformation, fov, near, far));
+  loadedCamera = true; // Flip this flag
 }
 
 void gm::Scene::loadMesh(const tinygltf::Node &meshNode,

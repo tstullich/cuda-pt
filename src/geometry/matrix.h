@@ -2,10 +2,10 @@
 
 #include <cstring>
 #include <iostream>
+#include <ostream>
 #include <vector>
 
 #include "vector.h"
-#include <ostream>
 
 namespace gm {
 
