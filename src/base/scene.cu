@@ -38,7 +38,7 @@ void gm::Scene::buildScene(const tinygltf::Scene &scene, const tinygltf::Model &
   }
 
   /// Use the camera parameters to initialize the camera matrices
-  camera->initializeMatrices(options.imageWidth, options.imageHeight);
+  camera->init(options.imageWidth, options.imageHeight);
 }
 
 gm::Matrix4x4f gm::Scene::buildTransformationMatrix(const tinygltf::Node &node,

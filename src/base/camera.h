@@ -1,7 +1,5 @@
 #pragma once
 
-#include <cuda.h>
-
 #include <cmath>
 
 #include "matrix.h"
@@ -20,23 +18,31 @@ class PerspectiveCamera {
   /// Default constructor in case the glTF scene does not contain a camera
   PerspectiveCamera(const float &fov, const float &near, const float &far);
 
-  PerspectiveCamera(const Matrix4x4f &cameraToWorld, const float &fov, const float &near, const float &far);
+  PerspectiveCamera(const Matrix4x4f &modelMatrix, const float &fov, const float &near, const float &far);
 
   /// Compute a new camera ray for the given raster space coordinate. Also
   /// requires a sample to generate sampled coordinates
-  Ray generateRay(uint32_t xPos, uint32_t yPos, const Vector2f &sample);
+  Ray generateRay(uint32_t pixelX, uint32_t pixelY, const Vector2f &sample);
 
-  // Allow setting the image dimensions
-  void initializeMatrices(const size_t &width, const size_t &height);
+  void init(const uint32_t &width, const uint32_t &height);
 
  private:
+  Matrix4x4f buildView();
+
+  Matrix4x4f buildProjection();
+
   // Projection plane's near and far positions
   float near;
   float far;
-
   float fov;
 
-  Matrix4x4f cameraToWorld;
-  Matrix4x4f projection;
+  // Variables for the projection matrix
+  float aspectRatio;
+  float scaleFactor;
+
+  uint32_t width;
+  uint32_t height;
+
+  Matrix4x4f model;
 };
 }  // namespace gm

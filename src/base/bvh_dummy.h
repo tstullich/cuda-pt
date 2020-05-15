@@ -12,6 +12,8 @@
 /// Class for testing intersections with a BVH
 /// Will be swapped out for actual BVH
 namespace gm {
+
+class Scene;
 class BVHDummy {
  public:
   BVHDummy(const std::unique_ptr<Scene> &scene);

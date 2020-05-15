@@ -10,18 +10,14 @@
 namespace gm {
 
 /// An implementation of a 4x4 matrix. This class can be used to work with
-/// the affine transformations below. The matrix is represented in row-major
+/// the affine transformations below. The matrix is represented in column-major
 /// form and the transformations operate on a right-handed Cartesian coordinate
 /// system.
-template <typename T>
+template<typename T>
 class Matrix4x4 {
  public:
   Matrix4x4() {}
 
-  /// Initialize a Matrix using a vector with 16 entries. This is useful
-  /// for loading matrices from glTF scene descriptions. Vector is assumed
-  /// to store its entries in row-major form. Because glTF stores its matrices
-  /// in column-major form we also need to transpose the incoming matrix
   Matrix4x4(const std::vector<double> &matrix) {
     for (size_t row = 0; row < 4; ++row) {
       for (size_t col = 0; col < 4; ++col) {
@@ -49,13 +45,13 @@ class Matrix4x4 {
 
   /// Multiply a point using the inner 3x3 matrix. We implicitly assume that our
   /// points have homogeneous coordinates so we need to normalize with the w
-  /// component if needed. By convention the 1x3 vector is on the left-hand side,
+  /// component if needed. By convention the 3x1 vector is on the right-hand side,
   /// so we need to multiply through the columns of the matrix
-  Vector3<T> multiplyPoint(const Vector3<T> &lhs) const {
-    T x = m[0][0] * lhs.x + m[1][0] * lhs.y + m[2][0] * lhs.z + m[3][0];
-    T y = m[0][1] * lhs.x + m[1][1] * lhs.y + m[2][1] * lhs.z + m[3][1];
-    T z = m[0][2] * lhs.x + m[1][2] * lhs.y + m[2][2] * lhs.z + m[3][2];
-    T w = m[0][3] * lhs.x + m[1][3] * lhs.y + m[2][3] * lhs.z + m[3][3];
+  Vector3<T> multiplyPoint(const Vector3<T> &rhs) const {
+    T x = m[0][0] * rhs.x + m[0][1] * rhs.y + m[0][2] * rhs.z + m[0][3];
+    T y = m[1][0] * rhs.x + m[1][1] * rhs.y + m[1][2] * rhs.z + m[1][3];
+    T z = m[2][0] * rhs.x + m[2][1] * rhs.y + m[2][2] * rhs.z + m[2][3];
+    T w = m[3][0] * rhs.x + m[3][1] * rhs.y + m[3][2] * rhs.z + m[3][3];
 
     // Normalize points by w if needed
     return (w == 1.0f || w == 0.0f) ? Vector3<T>(x, y, z)
@@ -64,10 +60,10 @@ class Matrix4x4 {
 
   /// Multiply a vector using the inner 3x3 matrix. By convention the vector is
   /// on the left-hand side, so we need to use the columns of the matrix for multiplication
-  Vector3<T> multiplyVector(const Vector3<T> &lhs) const {
-    return Vector3<T>(m[0][0] * lhs.x + m[1][0] * lhs.y + m[2][0] * lhs.z,
-                      m[0][1] * lhs.x + m[1][1] * lhs.y + m[2][1] * lhs.z,
-                      m[0][2] * lhs.x + m[1][2] * lhs.y + m[2][2] * lhs.z);
+  Vector3<T> multiplyVector(const Vector3<T> &rhs) const {
+    return Vector3<T>(m[0][0] * rhs.x + m[0][1] * rhs.y + m[0][2] * rhs.z,
+                      m[1][0] * rhs.x + m[1][1] * rhs.y + m[1][2] * rhs.z,
+                      m[2][0] * rhs.x + m[2][1] * rhs.y + m[2][2] * rhs.z);
   }
 
   // Initialize matrix as the identity matrix
@@ -89,9 +85,9 @@ Matrix4x4<T> scaleMatrix(const Vector3<T> &scale) {
 template<typename T>
 Matrix4x4<T> translationMatrix(const Vector3<T> &translation) {
   Matrix4x4<T> mat;
-  mat[3][0] = translation.x;
-  mat[3][1] = translation.y;
-  mat[3][2] = translation.z;
+  mat[0][3] = translation.x;
+  mat[1][3] = translation.y;
+  mat[2][3] = translation.z;
   return mat;
 }
 
@@ -143,13 +139,13 @@ Matrix4x4<T> invert(Matrix4x4<T> m) {
   return mat;
 }
 
-template <typename T>
+template<typename T>
 inline std::ostream &operator<<(std::ostream &stream, const Matrix4x4<T> &mat) {
-  stream << "Matrix4x4(" << std::endl << 
-    mat.m[0][0] << "," << mat.m[0][1]<< "," << mat.m[0][2] << ","<< mat.m[0][3] << std::endl <<
-    mat.m[1][0] << "," << mat.m[1][1]<< "," << mat.m[1][2] << ","<< mat.m[1][3] << std::endl <<
-    mat.m[2][0] << "," << mat.m[2][1]<< "," << mat.m[2][2] << ","<< mat.m[2][3] << std::endl <<
-    mat.m[3][0] << "," << mat.m[3][1]<< "," << mat.m[3][2] << ","<< mat.m[3][3] << ")"<< std::endl;
+  stream << "Matrix4x4(" << std::endl
+         << mat.m[0][0] << "," << mat.m[0][1] << "," << mat.m[0][2] << "," << mat.m[0][3] << std::endl
+         << mat.m[1][0] << "," << mat.m[1][1] << "," << mat.m[1][2] << "," << mat.m[1][3] << std::endl
+         << mat.m[2][0] << "," << mat.m[2][1] << "," << mat.m[2][2] << "," << mat.m[2][3] << std::endl
+         << mat.m[3][0] << "," << mat.m[3][1] << "," << mat.m[3][2] << "," << mat.m[3][3] << ")" << std::endl;
 
   return stream;
 }

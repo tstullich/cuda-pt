@@ -3,8 +3,8 @@
 #include <memory>
 #include <unordered_map>
 
+#include "application.h"
 #include "camera.h"
-#include "integrator.h"
 #include "matrix.h"
 #include "mesh.h"
 #include "tiny_gltf.h"

@@ -1,16 +1,13 @@
 #include <iostream>
 #include <stdexcept>
 
-#include "integrator/integrator.h"
+#include "application/application.h"
 
 int main(int argc, char** argv) {
   try {
     if (argc > 1) {
-      // Load our scene using the integrator. We should move this out
-      // in the future to decouple Integrator & Scene classes
-      gm::RenderOptions options(400, 300, 4);
-      gm::Integrator integrator(argv[1], options);
-      integrator.pathtrace();
+      gm::Application application(argv[1]);
+      application.run();
     } else {
       std::cout
           << "No scene specified! Please supply a valid path to a glTF scene."

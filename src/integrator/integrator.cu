@@ -1,20 +1,9 @@
 #include "integrator.h"
 
-gm::Integrator::Integrator(const std::string &filePath, const RenderOptions &options) : options(options) {
-  // Load our scene
-  scene = std::unique_ptr<Scene>(new Scene(filePath, options));
-
-  // Set some camera settings based on the output image
-  scene->camera->setImagePlane(options.imageWidth, options.imageHeight);
-
-  // Build BVH
-  bvh = std::unique_ptr<BVHDummy>(new BVHDummy(scene));
-
-  // Initialize the final image
-  image = std::unique_ptr<RGBImage>(new RGBImage(options.imageWidth, options.imageHeight));
-}
-
-void gm::Integrator::pathtrace() {
+void gm::Integrator::pathtrace(const std::unique_ptr<Scene> &scene,
+                               const std::unique_ptr<BVHDummy> &bvh,
+                               std::unique_ptr<RGBImage> &image,
+                               const RenderOptions &options) {
   uint8_t *imageBuffer = image->getBuffer();
   size_t imageWidth = image->getWidth();
   size_t imageHeight = image->getHeight();
@@ -74,5 +63,4 @@ void gm::Integrator::pathtrace() {
       imageBuffer[pixelIdx + 2] = static_cast<uint8_t>(pixelColor.z * 255.99);
     }
   }
-  image->writePNG("test.png");
 }

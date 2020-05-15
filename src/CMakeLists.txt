@@ -1,5 +1,6 @@
 # It's only necessary to list the source files here
 set(SOURCE_FILES
+    application/application.cu
     base/bvh_dummy.cu
     base/camera.cu
     base/image.cu
@@ -16,6 +17,7 @@ target_compile_features(gamma_lib PUBLIC cxx_std_11)
 set_target_properties(gamma_lib PROPERTIES CUDA_SEPARABLE_COMPILATION ON)
 
 # Include directories. Add one for each new folder in this directory
+target_include_directories(gamma_lib PUBLIC ${CMAKE_CURRENT_LIST_DIR}/application)
 target_include_directories(gamma_lib PUBLIC ${CMAKE_CURRENT_LIST_DIR}/base)
 target_include_directories(gamma_lib PUBLIC ${CMAKE_CURRENT_LIST_DIR}/geometry)
 target_include_directories(gamma_lib PUBLIC ${CMAKE_CURRENT_LIST_DIR}/integrator)
